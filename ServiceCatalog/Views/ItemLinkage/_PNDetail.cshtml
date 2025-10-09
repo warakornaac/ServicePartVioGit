@@ -1,0 +1,84 @@
+﻿@{
+    var ListPNDetail = @ViewBag.DetailPN;
+}
+<style>
+    /* hover effect */
+    .list-group-item:hover {
+        background-color: #f0f8ff;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+
+        .list-group-item:hover .fw-bold {
+            color: #0d6efd;
+        }
+</style>
+
+<div class="card border">
+    <!-- Header -->
+    <div class="card-header bg-primary text-dark fw-bold rounded-top">
+        Stock Description
+    </div>
+
+
+    <!-- รายการข้างใน -->
+    <ul class="list-group list-group-flush">
+        @if (ListPNDetail.Count > 0)
+        {
+            foreach (var item in ListPNDetail)
+            {
+                <li class="list-group-item d-flex align-items-center justify-content-between clickable-partspec"
+                    data-stkcod="@item.STKCOD"
+                    data-Company="@item.Company">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 text-center">
+                            <div class="bg-light border d-flex align-items-center justify-content-center"
+                                 style="width:80px; height:80px;">
+                                @*<span class="fw-bold">PICTURE</span>*@
+                                <img src="@item.Image" style="width:80px; height:80px;" />
+                            </div>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">@item.STKCOD</h6>
+                            <small>@item.STKDES</small>
+                        </div>
+                    </div>
+                    @if (item.Company == "TAC")
+                    {
+                        <span class="badge bg-danger px-3 py-2">TAC</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary px-3 py-2">@item.Company</span>
+                    }
+                </li>
+            }
+        }
+        else
+        {
+            <li class="list-group-item d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <div class="me-3 text-center">
+                        <div class="bg-light border d-flex align-items-center justify-content-center"
+                             style="width:80px; height:80px;">
+                            <span class="fw-bold">NO DATA</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1">NO STOCK DATA</h6>
+                    </div>
+                </div>
+                @*@if (item.Company == "TAC")
+                    {
+                        <span class="badge bg-danger px-3 py-2">TAC</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary px-3 py-2">@item.Company</span>
+                    }*@
+            </li>
+        }
+    </ul>
+
+</div>
