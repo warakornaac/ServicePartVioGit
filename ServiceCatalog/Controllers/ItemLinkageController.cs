@@ -16,7 +16,7 @@ namespace ServiceCatalog.Controllers
     public class ItemLinkageController : Controller
     {
         // GET: ItemLinkage
-        public ActionResult Index(string stkcode)
+        public ActionResult Index()
         {
             List<SelectListItem> listProductName = new List<SelectListItem>();
 
@@ -36,7 +36,6 @@ namespace ServiceCatalog.Controllers
                     });
                 }
             }
-            @ViewBag.stkCodeByPartSpec = stkcode;
             @ViewBag.listProductName = listProductName;
             return View();
         }

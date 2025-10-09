@@ -1245,7 +1245,21 @@
             .html(`<i class="fa ${btnIcon} me-1"></i> ${btnText}`)
             .off('click')
             .on('click', function () {
-                saveEntity(mode, module, type, market, maker, range);
+                Swal.fire({
+                    title: "Confirm?",
+                    //text: "ยืนยันที่จะดำเนินการต่อ!",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        saveEntity(mode, module, type, market, maker, range);
+                    }
+                });
+
             });
 
         // เปิด Modal
@@ -1405,7 +1419,20 @@
             .addClass(btnClass)
             .off('click')
             .on('click', function () {
-                saveBody(mode, options.makerId, options.rangeId, options.modelId);
+                Swal.fire({
+                    title: "Confirm?",
+                    //text: "ยืนยันที่จะดำเนินการต่อ!",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        saveBody(mode, options.makerId, options.rangeId, options.modelId);
+                    }
+                });
             });
 
         $('#bodyId').val('');
@@ -1577,14 +1604,14 @@
         if (mod === 'add') {
 
             Swal.fire({
-                title: "ยืนยันข้อมูล?",
-                text: "ยืนยันที่จะดำเนินการต่อ!",
+                title: "Confirm?",
+                //text: "ยืนยันที่จะดำเนินการต่อ!",
                 icon: "question",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
                 cancelButtonColor: "#d33",
-                confirmButtonText: "ใช่",
-                cancelButtonText: "ยกเลิก"
+                confirmButtonText: "Yes",
+                cancelButtonText: "Cancel"
             }).then((result) => {
                 if (result.isConfirmed) {
                     addEngine(maker, rang, model, body, xeng, xstrokes, xfuel);

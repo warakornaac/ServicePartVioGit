@@ -224,31 +224,28 @@
 
     //clear selecter
     function clearALL() {
-        clearMaker();
         clearModelrange();
         clearModel();
         clearBody();
         clearEngine();
     };
-    function clearMaker() {
-    }
     function clearModelrange() {
         $('#range-select').empty();
-        $('#range-select').append('<option value="ALL" selected>ALL</option>');
-        $('#range-select').append('<option value="" >No ModelRange</option>');
+       // $('#range-select').html('<option value="ALL" selected>ALL</option>');
+        $('#range-select').html('<option value="ALL" selected>ALL</option><option value="" >No ModelRange</option>').selectpicker('refresh');
     }
     function clearModel() {
         $('#model-select').empty();
-        $('#model-select').append('<option value="ALL" selected>ALL</option>');
+        $('#model-select').html('<option value="ALL" selected>ALL</option>').selectpicker('refresh');
 
     }
     function clearBody() {
         $('#body-select').empty();
-        $('#body-select').append('<option value="ALL" selected>ALL</option>');
+        $('#body-select').html('<option value="ALL" selected>ALL</option>').selectpicker('refresh');
     }
     function clearEngine() {
         $('#engine-select').empty();
-        $('#engine-select').append('<option value="ALL" selected>ALL</option>');
+        $('#engine-select').html('<option value="ALL" selected>ALL</option>').selectpicker('refresh');
     }
 
     //loader
