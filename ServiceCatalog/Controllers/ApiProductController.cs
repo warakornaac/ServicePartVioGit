@@ -361,7 +361,7 @@ namespace ServiceCatalog.Controllers
             {
                 foreach (var rowDataDescription in articleResponse.ArticleCriteria)
                 {
-                    SetDataToArray(setArrayByTable, ++countRowSpec, rowDataDescription.criteriaAbbrDescription, rowDataDescription.formattedValue + " " + rowDataDescription.criteriaUnitDescription, "", "", "Product_Spec");
+                    SetDataToArray(setArrayByTable, ++countRowSpec, rowDataDescription.criteriaDescription, rowDataDescription.formattedValue + " " + rowDataDescription.criteriaUnitDescription, "", "", "Product_Spec");
                 };
             }
             //OEM
@@ -611,7 +611,7 @@ namespace ServiceCatalog.Controllers
             {
                 foreach (var rowDataDescription in articleResponse.ArticleCriteria)
                 {
-                    SetDataToArray(setArrayByTable, ++countRowSpec, rowDataDescription.criteriaAbbrDescription, rowDataDescription.formattedValue + " " + rowDataDescription.criteriaUnitDescription, "", "", "Product_Spec");
+                    SetDataToArray(setArrayByTable, ++countRowSpec, rowDataDescription.criteriaDescription, rowDataDescription.formattedValue + " " + rowDataDescription.criteriaUnitDescription, "", "", "Product_Spec");
                 };
             }
             //OEM

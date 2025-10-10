@@ -92,6 +92,7 @@ namespace ServiceCatalog.Controllers
                     sumItemAll = dr["sumItemAll"].ToString(),
                     sumItemAllSuccess = dr["sumItemAllSuccess"].ToString(),
                     sumItemCurrentAll = dr["sumItemCurrentAll"].ToString(),
+                    sumItemCurrentRemain = dr["sumItemCurrentRemain"].ToString(),
                     sumItemCurrentAllSuccess = dr["sumItemCurrentAllSuccess"].ToString(),
                     sumItemCurrentTaskPendding = dr["sumItemCurrentTaskPendding"].ToString(),
                     sumItemCurrentTaskProcess = dr["sumItemCurrentTaskProcess"].ToString(),
@@ -109,6 +110,7 @@ namespace ServiceCatalog.Controllers
             public string sumItemAll { get; set; }
             public string sumItemAllSuccess { get; set; }
             public string sumItemCurrentAll { get; set; }
+            public string sumItemCurrentRemain { get; set; }
             public string sumItemCurrentAllSuccess { get; set; }
             public string sumItemCurrentTaskPendding { get; set; }
             public string sumItemCurrentTaskProcess { get; set; }

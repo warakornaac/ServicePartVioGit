@@ -69,10 +69,8 @@ else
 <script defer>
     $('#buttonAddLinkage').click(function (e) {
         e.preventDefault();
-
         let stockCodeSearch = $("#stockCodeSearch").val();
         var url = '@Url.Action("Index", "ItemLinkage")' + '?stkcode=' + encodeURIComponent(stockCodeSearch);
-
-        window.open(url, '_blank'); // Open in a new tab
+        window.open(url, '_blank');
     });
 </script>

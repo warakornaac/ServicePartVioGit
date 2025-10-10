@@ -237,6 +237,37 @@ else
         </div>
     </div>
 </div>
+<!-- Modal Add&Update OEM-->
+<div class="modal fade" id="OemAddModal" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header pb-2">
+                <h4 class="modal-title" id="ModalLabel"> <i class="ri-add-box-fill"></i> Add OEM </h4>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label for="form-text" class="form-label fs-14 text-dark"> Row : <u><span class="text-danger fw-semibold fs-16" id="labelRow"> </span></u> </label>
+                        <input type="hidden" class="form-control" id="txtRow" placeholder="Row" readonly>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="form-text" class="form-label fs-14 text-dark"> OE : </label>
+                        <input type="text" class="form-control" id="txtTitle" placeholder="หมายเลข OE" autocomplete="off">
+                    </div>
+                    <div class="col-md-12 pt-1">
+                        <label for="form-text" class="form-label fs-14 text-dark"> Maker : </label>
+                        <input type="text" class="form-control" id="txtDescription" placeholder="Maker" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal"> <i class="fa fa-times"></i> ปิด </button>
+                <button type="button" class="btn btn-success" onclick="savePartDescription('Oem');"> <i class="fa fa-save"></i> บันทึก </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script defer>
     function checkPartImage() {
@@ -329,7 +360,7 @@ else
                             Swal.fire({
                                 icon: 'error',
                                 title: 'ระบบทำงานผิดพลาด',
-                                html: 'กรุณาแจ้งผู้ดูแลระบบ<br>โดยการแคปหน้าจอและก๊อปปี้ Error ด่านล่างนี้ savePartDescription.<br> ' + result.message + '<br><br>',
+                                html: 'กรุณาแจ้งผู้ดูแลระบบ<br>โดยการแคปหน้าจอและก๊อปปี้ Error ด่านล่างนี้ deletePartByStkcode.<br> ' + result.message + '<br><br>',
                                 confirmButtonColor: '#d33',
                                 confirmButtonText: 'ปิด | Close',
                                 allowOutsideClick: false,
@@ -344,7 +375,7 @@ else
                     Swal.fire({
                         icon: 'error',
                         title: 'ระบบทำงานผิดพลาด',
-                        html: 'กรุณาแจ้งผู้ดูแลระบบ<br>โดยการแคปหน้าจอและก๊อปปี้ Error ด่านล่างนี้ savePartDescription.<br> ' + error + '<br><br>',
+                        html: 'กรุณาแจ้งผู้ดูแลระบบ<br>โดยการแคปหน้าจอและก๊อปปี้ Error ด่านล่างนี้ deletePartByStkcode.<br> ' + error + '<br><br>',
                         confirmButtonColor: '#d33',
                         confirmButtonText: 'ปิด | Close',
                         allowOutsideClick: false,
@@ -486,7 +517,6 @@ else
         } else {
             txtRow = txtRow;
         }
-
         if (tabName !== "") {
             modalAddName = tabName + "AddModal";
         }

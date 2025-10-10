@@ -27,7 +27,7 @@ namespace ServiceCatalog.Controllers
         {
             return View();
         }
-        public ActionResult ManagementPart()
+        public ActionResult ManagementPart(string stkcode)
         {
             List<SelectListItem> listProductName = new List<SelectListItem>();
 
@@ -47,6 +47,7 @@ namespace ServiceCatalog.Controllers
                     });
                 }
             }
+            @ViewBag.stockCodeByPartSpec = stkcode;
             @ViewBag.listProductName = listProductName;
             return View("IndexManagementPart", new
             {

@@ -92,6 +92,7 @@
                             </div>
                             <input type="text" class="form-control ui-autocomplete-input" id="txtStockCode" value="" placeholder="STOCK CODE" autocomplete="off">
                             <input type="hidden" class="form-control" id="stockCodeSearch">
+                            <input type="hidden" class="form-control" id="stockCodeByPartSpec" value="@ViewBag.stockCodeByPartSpec">
                             <div class="input-group-text" onclick="resetStkcode();">
                                 <i class="ri-close-fill"></i>
                             </div>
@@ -119,6 +120,19 @@
     var company = $('#txtCompany option:selected').val();
     var stockGroup = $('#txtStockGroup option:selected').val();
     var stockCodeSearch = $('#stockCodeSearch').val();
+    var stockCodeByPartSpec = $('#stockCodeByPartSpec').val();
+    //กรณีส่ง stockCode มาจากที่อื่น
+    $(document).ready(function () {
+        if (stockCodeByPartSpec != "") {
+            $("#txtStockCode").val(stockCodeByPartSpec);
+            $("#stockCodeSearch").val(stockCodeByPartSpec);
+            $("#txtProductCode").prop("disabled", true);
+            $("#txtCompany").prop("disabled", true);
+            $("#txtStockGroup").prop("disabled", true);
+            $("#txtStockCode").prop("disabled", true);
+            searchPartByStkcode(stockCodeByPartSpec);
+        }
+    });
     //count item
     async function GetProductApiAutomateCount() {
         console.log("GetProductApiAutomateCount");
@@ -223,7 +237,7 @@
         select: function (event, ui) {
             var _val = ui.item.value;
             var _splito = "";
-            _splito = _val.split(' ');
+            _splito = _val.split('|');
             var splitval = _splito;
             _scus = _splito[0].trim();
             console.log("sub(0) = " + _splito[0].trim() + " sub(1) = " + _splito[1].trim())

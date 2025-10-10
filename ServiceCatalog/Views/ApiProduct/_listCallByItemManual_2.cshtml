@@ -451,7 +451,7 @@
                                                             .GroupBy(c => new
                                                             {
                                                                 c.criteriaId,
-                                                                c.criteriaAbbrDescription,
+                                                                c.criteriaDescription,
                                                                 c.criteriaUnitDescription
                                                             });
                                                         foreach (var group in grouped)
@@ -459,7 +459,7 @@
                                                             var formattedValues = string.Join(" | ", group.Select(g => g.formattedValue));
                                                             <li class="text-muted mb-2">
                                                                 <i class="bx bxs-circle fs-7 me-2 op-5"></i>
-                                                                <b>@group.Key.criteriaAbbrDescription</b> : @formattedValues
+                                                                <b>@group.Key.criteriaDescription</b> : @formattedValues
                                                                 @if (!string.IsNullOrWhiteSpace(group.Key.criteriaUnitDescription))
                                                                 {
                                                                     @($" {group.Key.criteriaUnitDescription}")

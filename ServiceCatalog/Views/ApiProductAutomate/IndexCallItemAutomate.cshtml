@@ -3,8 +3,6 @@
     List<SelectListItem> getListBrand = ViewBag.listBrand;
     string currentDate = DateTime.Now.ToString("dd-MM-yy");
 }
-
-
 <div class="page-header">
     <h1 class="page-title my-auto">
         Call item automate
@@ -19,49 +17,6 @@
     </div>
 </div>
 @*form search*@
-@*<div class="row">
-        <div class="col-xl-12">
-            <div class="card custom-card">
-                <div class="card-header justify-content-between"> <div class="card-title"> PartNo Specific (0242135553 | 30), (39070 | 101)</div> <div class="prism-toggle"> </div> </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="form-text" class="form-label fs-14 text-dark">PartNo</label>
-                            <div class="input-group">
-                                <div class="input-group-text">
-                                    <i class="ri-settings-5-fill"></i>
-                                </div>
-                                <input type="text" class="form-control" id="txtPartNo" value="0242135553" placeholder="39070">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="form-text" class="form-label fs-14 text-dark">Brand</label>
-                            <div class="input-group">
-                                <div class="input-group-text">
-                                    <i class="ri-roadster-fill"></i>
-                                </div>
-                                <select class="form-control selectpicker" id="txtBrandId" name="txtBrandId" style="width: 100%;" data-live-search="true" title="SELECT BRAND">
-                                    <option value="ALL">SELECT BRAND</option>
-                                    @for (var i = 0; i < getListBrand.Count; i++)
-                                    {
-                                        <option value="@getListBrand[i].Value" @(getListBrand[i].Value == "30" ? "selected" : "")> @getListBrand[i].Text </option>
-                                    }
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="row text-right">
-                        <div class="col-xs-12 col-md-12 text-end">
-                            <button class="btn btn-primary" onclick="getArticlesByPartno();">Search</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>*@
-
 <div class="row">
     <div class="col-lg-6 col-md-6 col-sm-12 col-xxl-3">
         <div class="card overflow-hidden">
@@ -114,13 +69,20 @@
             <div class="card-body">
                 <div class="d-flex">
                     <div class="mt-2">
-                        <h6 class="fw-normal">Call Item วันนี้ทั้งหมด</h6>
-                        <h2 class="mb-0 text-dark fw-semibold" id="sumItemCurrentAll"> <div class="spinner-border text-secondary"></div> </h2>
+                        <h6 class="fw-normal">Call Item วันนี้ทั้งหมด / คงเหลือ</h6>
+                        <div class="d-flex align-items-center">
+                            <h2 class="mb-0 text-dark fw-semibold me-2" id="sumItemCurrentAll">
+                                <div class="spinner-border text-secondary"></div>
+                            </h2>
+                            <span>/</span>
+                            <h2 class="mb-0 text-dark fw-semibold ms-2" id="sumItemCurrentRemain">
+                                <div class="spinner-border text-secondary"></div>
+                            </h2>
+                        </div>
                     </div>
                     <div class="ms-auto">
                         <div class="chart-wrapper mt-1">
-                            <canvas id="profitchart"
-                                    class="chart-dropshadow"></canvas>
+                            <canvas id="profitchart" class="chart-dropshadow"></canvas>
                         </div>
                     </div>
                 </div>
@@ -371,6 +333,7 @@
                     $('#sumItemAll').text(Number(data[0].sumItemAll).toLocaleString());
                     $('#sumItemAllSuccess').text(Number(data[0].sumItemAllSuccess).toLocaleString());
                     $('#sumItemCurrentAll').text(Number(data[0].sumItemCurrentAll).toLocaleString());
+                    $('#sumItemCurrentRemain').text(Number(data[0].sumItemCurrentRemain).toLocaleString());
                     $('#sumItemCurrentAllSuccess').text(Number(data[0].sumItemCurrentAllSuccess).toLocaleString());
                     $('#sumItemCurrentTaskPendding').text(Number(data[0].sumItemCurrentTaskPendding).toLocaleString());
                     $('#sumItemCurrentTaskProcess').text(Number(data[0].sumItemCurrentTaskProcess).toLocaleString());

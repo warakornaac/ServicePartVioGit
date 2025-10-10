@@ -91,7 +91,7 @@
                                     }
                                     @*<i class="ri-lock-fill"></i>*@
                                     <div class="btn-list">
-                                        <button class="btn btn-sm btn-primary-light" type="button" onclick="getItemProductDeatil('@rowProductTru.Stkcode')" id="task_btn_status_@rowProductTru.Stkcode" @disabledButton>
+                                        <button class="btn btn-sm btn-primary-light" type="button" onclick="getProductSpecByStkcode('@rowProductTru.Stkcode')" id="task_btn_status_@rowProductTru.Stkcode" @disabledButton>
                                             <span>@Html.Raw(iconBtnStatus)</span>
                                         </button>
                                     </div>
@@ -120,6 +120,10 @@
 </div>
 
 <script defer>
+    function getProductSpecByStkcode(Stkcode) {
+        var url = '@Url.Action("ManagementPart", "PartSpecification")' + '?stkcode=' + encodeURIComponent(Stkcode);
+        window.open(url, '_blank');
+    }
     //get detail modal
     function getItemProductDeatil(Stkcode) {
         $.ajax({
@@ -161,7 +165,7 @@
             });
         });
     }
-    //reload call
+    //reload call / เริ่ม call ครั้งแรก
     async function reloadTaskCallApi(rowNumber) {
         //const runTaskCallApi = await runTaskCallApi();
         GetProductApiAutomateCount();  //count item
@@ -169,16 +173,8 @@
         setTimeout(function () {
             //call api
             ajaxTaskCallApi();
-            //reload number
-            //$('#sumItemAll').html("<div class='spinner-border text-secondary'></div>");
-            //$('#sumItemAllSuccess').html("<div class='spinner-border text-secondary'></div>");
-            //$('#sumItemCurrentAll').html("<div class='spinner-border text-secondary'></div>");
-            //$('#sumItemCurrentAllSuccess').html("<div class='spinner-border text-secondary'></div>");
-            //$('#sumItemCurrentTaskPendding').html("-");
-            //$('#sumItemCurrentTaskProcess').html("-");
-            //$('#sumItemCurrentTaskComplete').html("-");
             console.log("runTaskCallApi");
-        }, 4000); //1000 = 1 วินาที
+        }, 180000); //1000 = 1 วินาที  //1 นาที เท่ากับ 60 วินาที / 60000 วินาที
     }
     //random number
     function getRandomInt() {
@@ -367,8 +363,9 @@
                     focusConfirm: false,
                 });
             }
-            // 1000 = 1 วินาที
-            await sleep(500);
+            //1000 = 1 วินาที
+            //1 นาที เท่ากับ 60 วินาที / 60000 วินาที
+            await sleep(120000);
         }
     }
 </script>
