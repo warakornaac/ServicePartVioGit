@@ -12,7 +12,7 @@ namespace ServiceCatalog.Data
     public class SearchLinkageVehicle : MsSQL
     {
         public SearchLinkageVehicle() : base(Utils.GetConfig("ServiceCatalogDB")) { }
-        public List<StoreSearchVehicleLinkageModel> SearchVehicle(string STKCOD, string marketID, string vehicleID, string maker, string rangID, string modelID, string bodyID, string engineID)
+        public List<StoreSearchVehicleLinkageModel> SearchVehicle(string STKCOD, string marketID, string vehicleID, string maker, string rangID, string modelID, string bodyID, string engineID, string Ktype)
         {
             var p = new SqlParameters();
             p.AddParams("@inSTKCOD", STKCOD);
@@ -23,6 +23,7 @@ namespace ServiceCatalog.Data
             p.AddParams("@inmodelID", modelID);
             p.AddParams("@inBodyID", bodyID);
             p.AddParams("@inEngineID", engineID);
+            p.AddParams("@inKType", Ktype);
 
             return ConvertExtension.ConvertDataTable<StoreSearchVehicleLinkageModel>(GetData(CmdStore("P_Search_Vehicle_Linkage", p)));
         }
