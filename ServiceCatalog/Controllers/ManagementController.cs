@@ -7,6 +7,7 @@ using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Reflection;
 
 namespace ServiceCatalog.Controllers
 {
@@ -603,7 +604,7 @@ namespace ServiceCatalog.Controllers
 
         }
 
-        public JsonResult UpdateVIOTrudata(string marketSegID, string vehicleSegID, string makerID, string rangeID, string modelID, string bodyID, string engineID, string valKtype, string valDrive, string valYearF, string valYearT, string valTHvio)
+        public JsonResult UpdateVIOTrudata(string marketSegID, string vehicleSegID, string makerID, string rangeID, string modelID, string bodyID, string engineID, string valKtype, string valDrive, string valYearF, string valYearT, string valTHvio, string TruType)
         {
             string message = string.Empty;
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
@@ -627,6 +628,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@invalYearF", valYearF);
                         cmd.Parameters.AddWithValue("@invalYearT", valYearT);
                         cmd.Parameters.AddWithValue("@invalTHVIO", valTHvio);
+                        cmd.Parameters.AddWithValue("@inTruType", TruType);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -742,6 +744,54 @@ namespace ServiceCatalog.Controllers
             }
             return Json(new { respone = true, message = result, flag = flag }, JsonRequestBehavior.AllowGet);
         }
+
+        /*
+        public JsonResult CheckLinkageItem(string TruType)
+        {
+            string result = string.Empty;
+            string message = string.Empty;
+            string respone = string.Empty;
+            List<object> list = new List<object>();
+            string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(conString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("P_Check_Linkage", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@inTrutype", TruType);
+                        SqlParameter outResult = new SqlParameter("@outResult", SqlDbType.NVarChar, 2);
+                        outResult.Direction = ParameterDirection.Output;
+                        cmd.Parameters.Add(outResult);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+
+                                list.Add(new
+                                {
+                                    Company = reader["Company"] != DBNull.Value ? reader["Company"].ToString() : string.Empty,
+                                    STKCOD = reader["STKCOD"] != DBNull.Value ? reader["STKCOD"].ToString() : string.Empty,
+                                    STKDES = reader["STKDES"] != DBNull.Value ? reader["STKDES"].ToString() : string.Empty
+                                });
+                            }
+                        }
+                        respone = outResult.Value?.ToString() ?? string.Empty;
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                message = e.Message;
+                respone = "E";
+            }
+
+            return Json(new { respone = respone, message = message, result = list }, JsonRequestBehavior.AllowGet);
+        }
+        */
 
         //delete VIO
         public JsonResult DeleteVIO_TruData(string moduleID, string marketSegID, string vehicleSegID, string makerID, string modelRangeID, string modelID, string bodyID, string engineID)

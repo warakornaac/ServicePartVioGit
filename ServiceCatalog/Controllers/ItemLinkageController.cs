@@ -144,13 +144,13 @@ namespace ServiceCatalog.Controllers
             });
         }
 
-        public JsonResult SearchVehicleLinkage(string STKCOD, string marketID, string vehicleID, string maker, string rangID, string modelID, string bodyID, string engineID)
+        public JsonResult SearchVehicleLinkage(string STKCOD, string marketID, string vehicleID, string maker, string rangID, string modelID, string bodyID, string engineID, string Ktype)
         {
             string message = string.Empty;
             List<StoreSearchVehicleLinkageModel> list = new List<StoreSearchVehicleLinkageModel>();
             try
             {
-                list = new SearchLinkageVehicle().SearchVehicle(STKCOD, marketID, vehicleID, maker, rangID, modelID, bodyID, engineID);
+                list = new SearchLinkageVehicle().SearchVehicle(STKCOD, marketID, vehicleID, maker, rangID, modelID, bodyID, engineID, Ktype);
             }
             catch (Exception ex)
             {

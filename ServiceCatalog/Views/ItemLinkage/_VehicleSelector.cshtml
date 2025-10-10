@@ -17,7 +17,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-lg-4 col-md-4 col-12 mb-3">
-                <h5 class="mb-0">Market Segment</h5>
+                <h5 class="mb-0">Market Segment:</h5>
                 <select name="market" id="market-select" class="form-control selectpicker" data-live-search="true" onchange="clearALL().then(() => searchVehicle());">
                     <option value="ALL" selectd>ALL</option>
                     @if (ListMarket != null)
@@ -34,7 +34,7 @@
 
             </div>
             <div class="col-lg-4 col-md-4 col-12 mb-3">
-                <h5 class="mb-0">Vehicle Segment</h5>
+                <h5 class="mb-0">Vehicle Segment:</h5>
                 <select name="vehicle" id="vehicle-select" class="form-control selectpicker" data-live-search="true" onchange="clearALL().then(() => searchVehicle());">
                     <option value="ALL">ALL</option>
                     @if (ListVehicle != null)
@@ -50,27 +50,27 @@
                 </select>
             </div>
             <div class="col-lg-4 col-md-4 col-12 mb-3">
-                <h5 class="mb-0">Maker</h5>
+                <h5 class="mb-0">Maker:</h5>
                 <select name="maker" id="maker-select" class="form-control selectpicker" data-live-search="true">
                     <option value="ALL">ALL</option>
                 </select>
 
             </div>
             <div class="col-lg-3 col-md-3 col-12 mb-3">
-                <h5 class="mb-0">Model Range</h5>
+                <h5 class="mb-0">Model Range:</h5>
                 <select name="modelrange" id="range-select" class="form-control selectpicker" data-live-search="true">
                     <option value="ALL">ALL</option>
                 </select>
 
             </div>
             <div class="col-lg-3 col-md-3 col-12 mb-3">
-                <h5 class="mb-0">Model</h5>
+                <h5 class="mb-0">Model:</h5>
                 <select name="model" id="model-select" class="form-control selectpicker" data-live-search="true">
                     <option value="ALL">ALL</option>
                 </select>
             </div>
             <div class="col-lg-3 col-md-3 col-12 mb-3">
-                <h5 class="mb-0">Body</h5>
+                <h5 class="mb-0">Body:</h5>
 
                 <select name="body" id="body-select" class="form-control selectpicker" data-live-search="true">
                     <option value="ALL">ALL</option>
@@ -87,9 +87,16 @@
             </div>
         </div>
         <div class="row ">
-            <div class="col-12">
-                <button class="btn btn-warning" id="linkage-by-selector">Linkage selector</button>
-                <button class="btn btn-secondary" id="linkage-by-filter">Linkage filter</button>
+            <div class="col-12 d-flex justify-content-between">
+                <div class="link-btn">
+                    <button class="btn btn-warning" id="linkage-by-selector">Linkage selector</button>
+                    <button class="btn btn-secondary" id="linkage-by-filter">Linkage filter</button>
+                </div>
+
+                <div class="g-2 d-inline-flex">
+                    <h5 class="me-1">Ktype: </h5>
+                    <input type="text" class="form-control" id="search-ktype" />
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover table-striped" id="table-vehicle">
@@ -105,6 +112,8 @@
                                            style="width: 20px; height: 20px;" />
                                 </div>
                             </th>
+                            <th>Ktype</th>
+                            <th>TruType</th>
                             <th>Maker</th>
                             <th>Model</th>
                             <th>Body</th>
@@ -161,7 +170,9 @@
         await engineLoader(makerId, modelRangeId, modelId, bodyId);
         searchVehicle();
     });
-
+    $('#search-ktype').on('input', function () {
+        searchVehicle();
+    });
     $('#search-btn').on('click', function () {
         SearchVIOData();
     });
@@ -393,14 +404,14 @@
         var model = $('#model-select').val();
         var body = $('#body-select').val();
         var engine = $('#engine-select').val();
-
+        var ktype = $('#search-ktype').val();
         $.ajax({
             url: '@Url.Action("SearchVehicleLinkage", "ItemLinkage")',
-            data: { STKCOD: STK, marketID: market, vehicleID: vehicle, maker: maker, rangID: range, modelID: model, bodyID: body, engineID: engine },
+            data: { STKCOD: STK, marketID: market, vehicleID: vehicle, maker: maker, rangID: range, modelID: model, bodyID: body, engineID: engine, Ktype: ktype },
             type: 'post',
             dataType: 'json',
             beforeSend: function () {
-                $('#table-vehicle tbody').empty().html('<tr><td colspan="7">Loading...</td></tr>');
+                $('#table-vehicle tbody').empty().html('<tr><td colspan="9">Loading...</td></tr>');
             },
             success: function (data) {
                 if ($.fn.DataTable.isDataTable('#table-vehicle')) {
@@ -452,6 +463,8 @@
                                             </div>`;
                                 SubmithtmlPage += `<tr ${rowClass}>`;
                                 SubmithtmlPage += `<td>${rdoAdd}</td>`;
+                                SubmithtmlPage += `<td>${item.KType}</td>`;
+                                SubmithtmlPage += `<td>${item.TruType}</td>`;
                                 SubmithtmlPage += `<td>${item.Maker}</td>`;
                                 SubmithtmlPage += `<td>${item.Model}</td>`;
                                 SubmithtmlPage += `<td>${item.Body}</td>`;
@@ -462,7 +475,7 @@
                             }
                         });//end loop
                         if (i === 0) {
-                            SubmithtmlPage = `<tr><td colspan="7">No more data link</td></tr>`;
+                            SubmithtmlPage = `<tr><td colspan="9">No more data link</td></tr>`;
                         }
 
                         $('#table-vehicle tbody').html(SubmithtmlPage);
@@ -481,7 +494,7 @@
 
                     }
                     else {
-                        $('#table-vehicle tbody').html('<tr><td colspan="7">No Data</td></tr>');
+                        $('#table-vehicle tbody').html('<tr><td colspan="9">No Data</td></tr>');
                     }
                 }
             }

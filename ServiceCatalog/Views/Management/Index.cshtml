@@ -605,7 +605,14 @@
                                     </div>
                                     <div class="col-12">
                                         <label class="text-muted-small mb-1 d-block">DriveType</label>
-                                        <input type="text" class="form-control form-control-sm" placeholder="DriveType" id="drive-txt">
+                                        @*<input type="text" class="form-control form-control-sm" placeholder="DriveType" id="drive-txt">*@
+                                        <select class="form-select" aria-label="DriveType" id="drive-txt">
+                                            <option value="NA" selected>NA</option>
+                                            <option value="FWD">FWD</option>
+                                            <option value="AWD">AWD</option>
+                                            <option value="RWD">RWD</option>
+                                        </select>
+
                                     </div>
                                     <div class="col-6">
                                         <label class="text-muted-small mb-1 d-block">YearFrom</label>
@@ -1164,7 +1171,7 @@
 
     //Start Autocomplete
     $(function () {
-        $("#drive-txt").autocomplete({
+        $("#drive-xxxxx").autocomplete({
             source: function (request, response) {
                 $.ajax({
                     url: '@Url.Action("GetDriveType", "Management")',
@@ -1186,6 +1193,9 @@
             }
         });
     });
+
+
+
     $(function () {
         $("#bodytype-txt").autocomplete({
             source: function (request, response) {
@@ -1729,7 +1739,7 @@
             $('#tru_engineId').val(options.engineId || '');
             $('#tru_trutype').val('');
             $('#ktype-txt').val('');
-            $('#drive-txt').val('');
+            $('#drive-txt').val('NA').change();
             $('#yearfrom-txt').val('');
             $('#yearto-txt').val('');
             $('#thvio-txt').val('');
@@ -1743,7 +1753,7 @@
             $('#tru_engineId').val(options.engineId || '');
             $('#tru_trutype').val(options.truType || '');
             $('#ktype-txt').val(options.Ktype || '');
-            $('#drive-txt').val(options.drive || '');
+            $('#drive-txt').val(options.drive || 'NA').change();
             $('#yearfrom-txt').val(options.yearF || '');
             $('#yearto-txt').val(options.yearT || '');
             $('#thvio-txt').val(options.thVIO || '');
@@ -1878,7 +1888,8 @@
                 }
             });
         } else { //Edit
-                           if (xktype != '') {
+            console.log('TRU is :' + xtrutyp);
+            if (xktype != '') {
                 $.ajax({
                     url: '@Url.Action("CheckKtype", "Management")',
                     data: { Modul: mod, KTYPE: xktype, TruTYPE: xtrutyp },
@@ -1979,7 +1990,7 @@
                 cancelButtonText: "ยกเลิก"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    editTrudata(_marketSeg, _vehicleSeg, maker, rang, model, body, eng, xktype, xdrive, xyearfrom, xyearto, xthvio);
+                    editTrudata(_marketSeg, _vehicleSeg, maker, rang, model, body, eng, xktype, xdrive, xyearfrom, xyearto, xthvio, xtrutyp);
                 }
             });
         }
@@ -2022,10 +2033,10 @@
             }
         })
     }
-        function editTrudata(market, vehicle, maker, rang, model, body, eng, ktype, drive, yearfrom, yearto, thvio) {
+        function editTrudata(market, vehicle, maker, rang, model, body, eng, ktype, drive, yearfrom, yearto, thvio, trutyp) {
             $.ajax({
                 url: '@Url.Action("UpdateVIOTrudata", "Management")',
-                data: { marketSegID: market, vehicleSegID: vehicle, makerID: maker, rangeID: rang, modelID: model, bodyID: body, engineID: eng, valKtype: ktype, valDrive: drive, valYearF: yearfrom, valYearT: yearto, valTHvio: thvio },
+                data: { marketSegID: market, vehicleSegID: vehicle, makerID: maker, rangeID: rang, modelID: model, bodyID: body, engineID: eng, valKtype: ktype, valDrive: drive, valYearF: yearfrom, valYearT: yearto, valTHvio: thvio, TruType: trutyp },
                 type: 'post',
                 dataType: 'json',
                 beforeSend: function () {
