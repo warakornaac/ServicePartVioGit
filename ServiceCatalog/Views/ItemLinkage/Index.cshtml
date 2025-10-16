@@ -188,7 +188,6 @@
     });// end doc
 
     function Reset() {
-        //$('#txtPartNo').val('');
         $('#pn-detail').empty();
         $('#linkage-data').empty();
         $('#selector-vehicle').empty();
@@ -196,11 +195,7 @@
     }
 
     function SearchPnDetail(stk) {
-        //var TextStk = $('#txtPartNo').val();
-        //if (TextStk.includes('|')) {
-        //    var splitStk = TextStk.split('|');
-        //    TextStk = splitStk[0];
-        //}
+
         $('#linkage-data').empty();
         $('#selector-vehicle').empty();
         $.ajax({
@@ -232,8 +227,8 @@
 
         console.log("Clicked item:", stkcod, company);
 
-        // ตรงนี้คุณจะให้ไปทำงานอะไรใน View หลักก็ใส่ได้
-        // เช่น เรียกฟังก์ชันหลัก
+
+        // เรียกฟังก์ชันหลัก
         GetLinkageData(stkcod);
         GetvehicleSelector(stkcod);
     });
@@ -304,7 +299,6 @@
             confirmButtonText: "Confirm",
             cancelButtonText: "Cancel",
         }).then((result) => {
-            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
                 $.ajax({
                     url: '@Url.Action("InsertLinkage", "ItemLinkage")',

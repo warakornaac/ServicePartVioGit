@@ -144,6 +144,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\ApiProductAutomateController.cs" />
     <Compile Include="Controllers\ApiProductController.cs" />
+    <Compile Include="Controllers\ApprovePMController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ItemLinkageController.cs" />
     <Compile Include="Controllers\ManagementController.cs" />
@@ -11425,6 +11426,8 @@
     <Content Include="Views\ItemLinkage\_PNDetail.cshtml" />
     <Content Include="Views\ItemLinkage\_VehicleSelector.cshtml" />
     <Content Include="Views\PartSpecification\_ListPartCompetitor.cshtml" />
+    <Content Include="Views\ApprovePM\Index.cshtml" />
+    <Content Include="Views\ApprovePM\_WaitApproveList.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
