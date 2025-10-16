@@ -19,5 +19,6 @@ namespace ServiceCatalog.Models
         public string Engine { get; set; }
         public string DriveType { get; set; }
         public string YearFrom { get; set; }
+        public string YearTo { get; set; }
     }
 }

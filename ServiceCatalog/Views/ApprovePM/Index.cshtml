@@ -254,14 +254,13 @@
                     Promise.all(requests).then(() => {
                         Swal.close();
                         Swal.fire({
-                            title: 'Completed!',
-                            text: 'All items have been linked successfully.',
+                            title: name +' Completed!',
+                           // text: 'All items have been linked successfully.',
                             confirmButtonText: "OK",
                             icon: "success"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                GetLinkageData(_stkout);
-                                searchVehicle();
+                                getApprv();
                             }
                         });
                     }).catch(() => {

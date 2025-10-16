@@ -5,7 +5,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 <style>
     .table-style {
-        height: 500px;
+        min-height: 500px;
         overflow-y: auto;
     }
 </style>
@@ -72,14 +72,13 @@
                 </div>
                 <div class="col-lg-3 col-md-3 col-12 mb-3">
                     <h5 class="mb-0">Body:</h5>
-                    <select name="body" id="body-select" class="form-control selectpicker" data-live-search="true">
+                    <select name="body" id="body-select" class="form-control selectpicker" data-live-search="true" title="">
                         <option value="ALL">ALL</option>
                     </select>
                 </div>
                 <div class="col-lg-3 col-md-3 col-12 mb-3">
-
                     <h5 class="mb-0">Engine:</h5>
-                    <select name="engine" id="engine-select" class="form-control selectpicker" data-live-search="true">
+                    <select name="engine" id="engine-select" class="form-control selectpicker" data-live-search="true" title="">
                         <option value="ALL">ALL</option>
                     </select>
                 </div>
@@ -114,7 +113,7 @@
         <div class="card-footer bg-white d-flex justify-content-end">
             <div class="d-flex gap-2 ms-auto">
                 <button class="btn btn-primary btn-sm" id="search-btn">
-                    <i class="fa fa-pencil-square-o"></i> <span>Search</span>
+                    <i class="fa fa-search"></i> <span>Search</span>
                 </button>
                 @*<button class="btn btn-outline-danger btn-sm">
                         <i class="fa fa-trash-o"></i>
@@ -184,14 +183,14 @@
         clearModel();
         clearBody();
         clearEngine();
-        modelRangeLoader(makerId);
+        modelRangeLoader();
     });
     $('#range-select').on('change', function () {
         var marketId = $('#market-select').val();
         var makerId = $('#maker-select').val();
         //var makerId = $(this).find(':selected').data('maker');
         var rangeId = $(this).val();
-        modelLoader(marketId, makerId, rangeId);
+        modelLoader();
     });
     $('#model-select').on('change', function () {
         var makerId = $('#maker-select').val();
@@ -199,14 +198,14 @@
         var modelRangeId = $('#range-select').val();
         //var modelRangeId = $(this).find(':selected').data('range');
         var modelId = $(this).val();
-        bodyLoader(makerId, modelRangeId, modelId);
+        bodyLoader();
     });
     $('#body-select').on('change', function () {
         var makerId = $('#maker-select').val();
         var modelRangeId = $('#range-select').val();
         var modelId = $('#model-select').val();
         var bodyId = $(this).val();
-        engineLoader(makerId, modelRangeId, modelId, bodyId);
+        engineLoader();
     });
 
     $('#search-btn').on('click', function () {
@@ -215,19 +214,26 @@
 
     $(document).ready(function () {
         MakerLoader();
-        //modelRangeLoader();
-        //modelLoader();
-        //bodyLoader();
-        //engineLoader();
+        modelRangeLoader();
+        modelLoader();
+        bodyLoader();
+        engineLoader();
         LoadVIOData();
+        $.fn.dataTable.ext.errMode = 'none';
+
     });
 
     //clear selecter
     function clearALL() {
-        clearModelrange();
-        clearModel();
-        clearBody();
-        clearEngine();
+        //clearModelrange();
+        //clearModel();
+        //clearBody();
+        //clearEngine();
+        MakerLoader();
+        modelRangeLoader();
+        modelLoader();
+        bodyLoader();
+        engineLoader();
     };
     function clearModelrange() {
         $('#range-select').empty();
@@ -287,7 +293,8 @@
         }
     });
 }
-function modelRangeLoader(makerId) {
+    function modelRangeLoader() {
+        var makerId = $('#maker-select').val();
     $.ajax({
         url: '@Url.Action("GetVIO_ModelRange", "UpLoadDataVIO")',
         type: 'post',
@@ -314,7 +321,10 @@ function modelRangeLoader(makerId) {
     });
 }
 
-function modelLoader(marketId,makerId,rangeId) {
+function modelLoader() {
+    var marketId = $('#market-select').val();
+    var makerId = $('#maker-select').val();
+    var rangeId = $('#range-select').val();
     $.ajax({
         url: '@Url.Action("GetVIO_Model", "UpLoadDataVIO")',
         type: 'post',
@@ -341,10 +351,12 @@ function modelLoader(marketId,makerId,rangeId) {
 }
 
 
-function bodyLoader(makerId, modelRangeId, modelId ) {
+function bodyLoader() {
     const _marketSeg = $('input[name="market"]:checked').val();
     const _vehicleSeg = $('input[name="VehicleSeg"]:checked').val();
-
+    var makerId = $('#maker-select').val();
+    var modelRangeId = $('#range-select').val();
+    var modelId = $('#model-select').val();
     $.ajax({
         url: '@Url.Action("GetVIO_Body", "UpLoadDataVIO")',
         type: 'post',
@@ -356,8 +368,14 @@ function bodyLoader(makerId, modelRangeId, modelId ) {
         success: function (data) {
             if (data.respone === true) {
                 var optionString = '<option value="ALL" selected>ALL</option>';
-                    data.result.forEach(item => {
-                        optionString += `<option value="${item.ID}">${item.Body}</option>`;
+                data.result.forEach(item => {
+                    if (item.Body == '') {
+                        optionString += `<option value="${item.ID}">${item.Body} </option>`;
+
+                    }
+                    else {
+                        optionString += `<option value="${item.ID}">${item.Body} </option>`;
+                    }
                     });
                 $('#body-select').html(optionString).selectpicker('refresh');;
             }
@@ -369,7 +387,11 @@ function bodyLoader(makerId, modelRangeId, modelId ) {
     });
 }
 
-function engineLoader(makerId, modelRangeId, modelId, bodyId) {
+function engineLoader() {
+    var makerId = $('#maker-select').val();
+    var modelRangeId = $('#range-select').val();
+    var modelId = $('#model-select').val();
+    var bodyId = $('#body-select').val();
     $.ajax({
         url: '@Url.Action("GETVIO_Engine", "UpLoadDataVIO")',
         data: { makerID: makerId, modelRangeID: modelRangeId, modelID: modelId, bodyID: bodyId },
@@ -456,6 +478,9 @@ function LoadVIOData() {
                         }
                     });
                 }
+                else {
+
+                }
             }
             else {
                 console.log('VIO Table Error:' + data.message);
@@ -525,7 +550,29 @@ function SearchVIOData() {
                         SubmithtmlPage += '</tr>';
 
                     });
-                    $('#table-vio tbody').append(SubmithtmlPage);
+                    $('#table-vio tbody').html(SubmithtmlPage);
+
+                    $('#table-vio').dataTable({
+                        paging: true,
+                        pageLength: 20,
+                        lengthChange: false,
+                        searching: false,
+                        ordering: false,
+                        //scrollY: 500,
+                        language: {
+                            info: "แสดง _START_ ถึง _END_ จากทั้งหมด _TOTAL_ ",
+                            infoEmpty: "ไม่มีข้อมูลให้แสดง"
+                        }
+                    });
+                }
+                else {
+                    SubmithtmlPage = '';
+                    if ($.fn.DataTable.isDataTable('#table-vio')) {
+                        $('#table-vio').DataTable().clear().destroy();
+
+                    }
+                    SubmithtmlPage += '<tr><td colspan="2">No Data Show</td></tr>'
+                    $('#table-vio tbody').html(SubmithtmlPage);
 
                     $('#table-vio').dataTable({
                         paging: true,
@@ -559,7 +606,10 @@ function SearchVIOData() {
     let today = new Date();
     let formattedDate = today.getFullYear() + '-' +
         ('0' + (today.getMonth() + 1)).slice(-2) + '-' +
-        ('0' + today.getDate()).slice(-2);
+        ('0' + today.getDate()).slice(-2) + ' ' +
+        ('0' + today.getHours()).slice(-2) + ':' +
+        ('0' + today.getMinutes()).slice(-2) + ':' +
+        ('0' + today.getSeconds()).slice(-2);
 
     // กำหนด URL
     var url = '@Html.Raw(Url.Action("GetVIOData", "UpLoadDataVIO"))';

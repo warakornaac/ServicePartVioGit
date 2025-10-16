@@ -8,6 +8,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.Reflection;
+using Microsoft.Ajax.Utilities;
 
 namespace ServiceCatalog.Controllers
 {
@@ -381,6 +382,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inmakerID", makerID);
                         cmd.Parameters.AddWithValue("@inmodelrangeID", rangeID);
                         cmd.Parameters.AddWithValue("@inVal", val);
+                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
 
                         cmd.ExecuteNonQuery();
                     }
@@ -413,6 +415,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inmodelrangeID", rangeID);
                         cmd.Parameters.AddWithValue("@inmodelID", modelID);
                         cmd.Parameters.AddWithValue("@inVal", val);
+                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
 
                         cmd.ExecuteNonQuery();
                     }
@@ -446,6 +449,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inmodelID", modelID);
                         cmd.Parameters.AddWithValue("@inBodyCode", bodyCode);
                         cmd.Parameters.AddWithValue("@inBodyType", bodyType);
+                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
 
                         cmd.ExecuteNonQuery();
                     }
@@ -480,6 +484,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inBodyID", bodyID);
                         cmd.Parameters.AddWithValue("@inBodyCode", bodyCode);
                         cmd.Parameters.AddWithValue("@inBodyType", bodyType);
+                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
 
                         cmd.ExecuteNonQuery();
                     }
@@ -513,6 +518,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inEngine", valEngine);
                         cmd.Parameters.AddWithValue("@inFuelType", valFuel);
                         cmd.Parameters.AddWithValue("@inStrokes", valStrokes);
+                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
 
                         cmd.ExecuteNonQuery();
                     }
@@ -547,6 +553,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inEngine", valEngine);
                         cmd.Parameters.AddWithValue("@inFuelType", valFuel);
                         cmd.Parameters.AddWithValue("@inStrokes", valStrokes);
+                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
 
                         cmd.ExecuteNonQuery();
                     }
@@ -589,6 +596,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@invalYearF", valYearF);
                         cmd.Parameters.AddWithValue("@invalYearT", valYearT);
                         cmd.Parameters.AddWithValue("@invalTHVIO", valTHvio);
+                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
 
                         cmd.ExecuteNonQuery();
                     }
@@ -629,6 +637,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@invalYearT", valYearT);
                         cmd.Parameters.AddWithValue("@invalTHVIO", valTHvio);
                         cmd.Parameters.AddWithValue("@inTruType", TruType);
+                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
 
                         cmd.ExecuteNonQuery();
                     }
@@ -899,6 +908,47 @@ namespace ServiceCatalog.Controllers
                 respone = false;
             }
             return Json(new { respone = respone, message = message, result = param });
+        }
+        //Check Insert
+        public JsonResult CheckOneValeVIO(string moduleID, string marketID, string makerID, string rangeID, string val)
+        {
+            string flag = string.Empty;
+            string message = string.Empty;
+            bool respone = true;
+            List<VIO_DATA> list = new List<VIO_DATA>();
+            string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(conString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand("P_Check_Insert_VIO_MarketSegment_VehicleSegment_Maker_ModelRange_Model", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@inModule", moduleID);
+                        cmd.Parameters.AddWithValue("@inmarketseID", marketID);
+                        cmd.Parameters.AddWithValue("@inmakerID", makerID);
+                        cmd.Parameters.AddWithValue("@inmodelrangeID", rangeID);
+                        cmd.Parameters.AddWithValue("@inVal", val);
+                        SqlParameter outResult = new SqlParameter("@outResult", SqlDbType.NVarChar, 2);
+                        outResult.Direction = ParameterDirection.Output;
+                        cmd.Parameters.Add(outResult);
+
+                        SqlParameter outMessage = new SqlParameter("@outMessage", SqlDbType.NVarChar, 100);
+                        outMessage.Direction = ParameterDirection.Output;
+                        cmd.Parameters.Add(outMessage);
+
+                        cmd.ExecuteNonQuery();
+
+                        message = outMessage.Value?.ToString() ?? string.Empty;
+                        flag = outResult.Value?.ToString() ?? string.Empty;
+                    }
+                }
+            }
+            catch (Exception ex) { message = ex.Message; respone = false; flag = "e"; }
+
+
+            return Json(new { respone = respone, message = message, flag = flag });
         }
     }
 }

@@ -154,7 +154,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inKtype", Ktype);
                         cmd.Parameters.AddWithValue("@inTrutype", TruType);
                         cmd.Parameters.AddWithValue("@inOldTrutype", OldTruType);
-                        cmd.Parameters.AddWithValue("@inFlag", flag);
+                        cmd.Parameters.AddWithValue("@inFlag", Flag);
                         cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
 
                         cmd.ExecuteNonQuery();
