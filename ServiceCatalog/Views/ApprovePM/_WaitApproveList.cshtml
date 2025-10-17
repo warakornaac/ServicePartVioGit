@@ -1,0 +1,169 @@
+﻿@{
+    var dataRow = ViewBag.LinkageApproveChangeList;
+}
+<style>
+    .hover-row {
+        transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+        .hover-row:hover {
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .hover-row.selected {
+            border-color: #0d6efd;
+            background-color: #e7f1ff;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+
+    .vehicle-info h5 {
+        background-color: #f1f3f5;
+        padding: 5px 10px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .vehicle-info span {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 14px;
+    }
+</style>
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+
+                    <div class="col-12 d-flex justify-content-between">
+                        <div class="g-1">
+
+                            <div class="p-1">
+                                <i class="fe fe-list"></i>
+                                @if (dataRow.Count > 0)
+                                {
+                                    <span class="mb-0 fw-semibold fs-14 text-info" id="item-count">@dataRow.Count Item </span>
+                                }
+                                else
+                                {
+                                    <span class="mb-0 fw-semibold fs-14 text-info" id="item-count">0 Item </span>
+                                }
+                            </div>
+                        </div>
+                        <div class="g-2">
+                            <button type="button" class="btn btn-success" id="apprv-btn" onclick="approvalChangeVIOConfirm('Y','Approve')">Approve</button>
+                            <button type="button" class="btn btn-danger" id="reject-btn" onclick="approvalChangeVIOConfirm('N','Reject')">Reject</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                @foreach (var item in dataRow)
+                {
+                    <div class="row hover-row">
+                        <div class="col-1 d-flex justify-content-center">
+                            <input type="checkbox" class="form-check-input" id="check-apprv-@item.apprvVIO.New_TruType" name="selectApprv" style="width: 25px; height: 25px;"
+                                   data-newtrutyp="@item.apprvVIO.New_TruType"
+                                   data-oldtrutyp="@item.apprvVIO.Old_TruType"
+                                   data-ktype="@item.apprvVIO.New_Ktype" />
+                        </div>
+                        <div class="col-5">
+                            <div class="card ">
+                                <div class="card-body p-0 vehicle-info">
+                                    <div class="row">
+                                        <div class="col-12 ">
+                                            <h5 class="mb-0 ">New</h5>
+                                        </div>
+                                        <span class="col-4">Market Segment: @item.apprvVIO.MarketSegment</span>
+                                        <span class="col-4">Vehicle Segment: @item.apprvVIO.VehicleSegment</span>
+                                        <span class="col-4">Maker: @item.apprvVIO.Maker</span>
+                                        <span class="col-4">Model: @item.apprvVIO.Model</span>
+                                        <span class="col-4">Body: @item.apprvVIO.Body (@item.apprvVIO.BodyType)</span>
+                                        <span class="col-4">Engine: @item.apprvVIO.Strokes @item.apprvVIO.EngineType </span>
+                                        <span class="col-4">DriveType: @item.apprvVIO.New_DriveType</span>
+                                        <span class="col-4">YearFrom: @item.apprvVIO.New_YearFrom</span>
+                                        <span class="col-4">YearTo: @item.apprvVIO.New_YearTo </span>
+                                        <span class="col-4">Ktype: @item.apprvVIO.New_Ktype</span>
+                                        <span class="col-4">TruType: @item.apprvVIO.New_TruType</span>
+                                    </div>
+                                    <hr class="m-0" />
+                                    <div class="row mt-2">
+                                        <div class="col-12">
+                                            <h5 class="mb-0">Old</h5>
+                                        </div>
+                                        <span class="col-4">Market Segment: @item.apprvVIO.MarketSegment</span>
+                                        <span class="col-4">Vehicle Segment: @item.apprvVIO.VehicleSegment</span>
+                                        <span class="col-4">Maker: @item.apprvVIO.Maker</span>
+                                        <span class="col-4">Model: @item.apprvVIO.Model</span>
+                                        <span class="col-4">Body: @item.apprvVIO.Body (@item.apprvVIO.BodyType)</span>
+                                        <span class="col-4">Engine: @item.apprvVIO.Strokes @item.apprvVIO.EngineType </span>
+                                        <span class="col-4">DriveType: @item.apprvVIO.Old_DriveType</span>
+                                        <span class="col-4">YearFrom: @item.apprvVIO.Old_YearFrom</span>
+                                        <span class="col-4">YearTo: @item.apprvVIO.Old_YearTo </span>
+                                        <span class="col-4">Ktype: @item.apprvVIO.Old_Ktype</span>
+                                        <span class="col-4">TruType: @item.apprvVIO.Old_TruType</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 p-2">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Company</th>
+                                            <th>STKCOD</th>
+                                            <th>STKDES</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @{
+                                            int i = 0;
+                                        }
+                                        @foreach (var detail in item.itemLink)
+                                        {
+                                            ++i;
+                                            <tr>
+                                                <td>@detail.Company</td>
+                                                <td>@detail.STKCOD</td>
+                                                <td>@detail.STKDES</td>
+                                            </tr>
+                                            if (i >= 3)
+                                            {
+                                                break;
+                                            }
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            @if (item.itemLink.Count > 3)
+                            {
+                                <a class="link-offset-2 link-underline link-underline-opacity-100" href="#">see more...</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    //$(document).on('click', '.hover-row', function (e) {
+    //    if ($(e.target).is('input[type="checkbox"]')) return;
+
+    //    const checkbox = $(this).find('input[type="checkbox"]');
+    //    const isChecked = !checkbox.prop('checked');
+
+    //    checkbox.prop('checked', isChecked).trigger('change');
+    //    $(this).toggleClass('selected', isChecked);
+    //});
+
+</script>

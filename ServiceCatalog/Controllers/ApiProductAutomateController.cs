@@ -51,9 +51,9 @@ namespace ServiceCatalog.Controllers
                     });
                 }
             }
-            var SearchProductTru = new  List<StoredSearchProductTruByStatusModel>();
+            var SearchProductTru = new List<StoredSearchProductTruByStatusModel>();
             SearchProductTru = new SearchProductTruByStatus().SearchProductTru("", "", "", "");
-         
+
             @ViewBag.listBrand = listBrandMaster;
             @ViewBag.listSearchProductTru = SearchProductTru;
 
@@ -68,7 +68,7 @@ namespace ServiceCatalog.Controllers
             var SearchProductTru = new List<StoredSearchProductTruByStatusModel>();
             //if (!string.IsNullOrEmpty(apiStatus))
             //{
-                SearchProductTru = new SearchProductTruByStatus().SearchProductTru(Stkcode, BrandId, RowNumber, ApiStatus);
+            SearchProductTru = new SearchProductTruByStatus().SearchProductTru(Stkcode, BrandId, RowNumber, ApiStatus);
             //}
             @ViewBag.listSearchProductTru = SearchProductTru;
             return PartialView("_ListItemAutomate", new

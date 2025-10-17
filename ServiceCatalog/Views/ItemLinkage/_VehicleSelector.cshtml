@@ -18,7 +18,7 @@
         <div class="row">
             <div class="col-lg-4 col-md-4 col-12 mb-3">
                 <h5 class="mb-0">Market Segment:</h5>
-                <select name="market" id="market-select" class="form-control selectpicker" data-live-search="true" onchange="clearALL().then(() => searchVehicle());">
+                <select name="market" id="market-select" class="form-control selectpicker" data-live-search="true" onchange="clearALL();">
                     <option value="ALL" selectd>ALL</option>
                     @if (ListMarket != null)
                     {
@@ -35,7 +35,7 @@
             </div>
             <div class="col-lg-4 col-md-4 col-12 mb-3">
                 <h5 class="mb-0">Vehicle Segment:</h5>
-                <select name="vehicle" id="vehicle-select" class="form-control selectpicker" data-live-search="true" onchange="clearALL().then(() => searchVehicle());">
+                <select name="vehicle" id="vehicle-select" class="form-control selectpicker" data-live-search="true" onchange="clearALL();">
                     <option value="ALL">ALL</option>
                     @if (ListVehicle != null)
                     {
@@ -85,17 +85,26 @@
                 </select>
 
             </div>
+            <div class="col-lg-3 col-md-3 col-12 mb-3">
+                <div class="g-2">
+                    <h5 class="me-1">Ktype: </h5>
+                    <input type="text" class="form-control" id="search-ktype" />
+                </div>
+            </div>
         </div>
         <div class="row ">
             <div class="col-12 d-flex justify-content-between">
                 <div class="link-btn">
-                    <button class="btn btn-warning" id="linkage-by-selector">Linkage selector</button>
-                    <button class="btn btn-secondary" id="linkage-by-filter">Linkage filter</button>
+                    <button class="btn btn-warning" id="linkage-by-selector">Insert by selector</button>
+                    <button class="btn btn-secondary" id="linkage-by-filter">Insert by filter</button>
                 </div>
 
                 <div class="g-2 d-inline-flex">
-                    <h5 class="me-1">Ktype: </h5>
-                    <input type="text" class="form-control" id="search-ktype" />
+
+                    <button class="btn btn-primary" id="search-btn">
+                        <i class="fa fa-search"></i> <span>Search</span>
+                    </button>
+
                 </div>
             </div>
             <div class="table-responsive">
@@ -145,7 +154,7 @@
         clearBody();
         clearEngine();
         await modelRangeLoader(makerId);
-        searchVehicle();
+        //searchVehicle();
     });
     $('#range-select').on('change', async function () {
         var marketId = $('#market-select').val();
@@ -153,14 +162,14 @@
         //var makerId = $(this).find(':selected').data('maker');
         var rangeId = $(this).val();
         await modelLoader(marketId, makerId, rangeId);
-        searchVehicle();
+        //searchVehicle();
     });
     $('#model-select').on('change', async function () {
         var makerId = $('#maker-select').val();
         var modelRangeId = $('#range-select').val();
         var modelId = $(this).val();
         await bodyLoader(makerId, modelRangeId, modelId);
-        searchVehicle();
+        //searchVehicle();
     });
     $('#body-select').on('change', async function () {
         var makerId = $('#maker-select').val();
@@ -168,13 +177,13 @@
         var modelId = $('#model-select').val();
         var bodyId = $(this).val();
         await engineLoader(makerId, modelRangeId, modelId, bodyId);
-        searchVehicle();
+        //searchVehicle();
     });
     $('#search-ktype').on('input', function () {
-        searchVehicle();
+        //searchVehicle();
     });
     $('#search-btn').on('click', function () {
-        SearchVIOData();
+        searchVehicle();
     });
 
     $(document).ready(async function () {

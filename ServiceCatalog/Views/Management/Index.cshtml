@@ -142,6 +142,14 @@
         font-size: 13px;
     }
 
+    .item-row:hover {
+        cursor: pointer;
+    }
+
+    .editable-group:hover {
+        cursor: pointer;
+    }
+
 
     @@keyframes shake {
         0% {
@@ -501,7 +509,30 @@
                                 <div class="row g-2">
                                     <div class="col">
                                         <label class="text-muted-small mb-1 d-block">Body Type</label>
-                                        <input type="text" class="form-control form-control-sm" id="bodytype-txt" placeholder="Body type">
+                                        @*<input type="text" class="form-control form-control-sm" id="bodytype-txt" placeholder="Body type">*@
+                                        <select class="form-select" id="bodytype-txt">
+                                            <option value="" selected>NA</option>
+                                            <option value="Off-road vehicle open">Off-road vehicle open</option>
+                                            <option value="Pickup">Pickup</option>
+                                            <option value="Liftback">Liftback</option>
+                                            <option value="Spoon">Spoon</option>
+                                            <option value="Cabrio">Cabrio</option>
+                                            <option value="Chassis">Chassis</option>
+                                            <option value="Estate">Estate</option>
+                                            <option value="Convertible">Convertible</option>
+                                            <option value="Targa">Targa</option>
+                                            <option value="MPV">MPV</option>
+                                            <option value="Saloon">Saloon</option>
+                                            <option value="Off-road vehicle closed">Off-road vehicle closed</option>
+                                            <option value="Van / Box">Van / Box</option>
+                                            <option value="Van / Estate">Van / Estate</option>
+                                            <option value="Coach">Coach</option>
+                                            <option value="Coupe">Coupe</option>
+                                            <option value="Hatchback">Hatchback</option>
+                                            <option value="KTP">KTP</option>
+                                            <option value="SUV">SUV</option>
+                                        </select>
+
                                     </div>
                                 </div>
                             </div>
@@ -660,6 +691,29 @@
     let _engine = '';
     $(document).ready(function () {
         MakerLoader();
+    });
+    $(document).on('click', '.item-row', function (e) {
+
+        if (!$(e.target).closest('button').length && !$(e.target).is('input[type=radio]')) {
+            $(this).find('input[type=radio]').prop('checked', true).trigger('change');
+        }
+    });
+    $(document).on('click', '.editable-group', function (e) {
+        if (!$(e.target).closest('button').length && !$(e.target).is('input[type=radio]')) {
+            $(this).find('input[type=radio]').prop('checked', true).trigger('change');
+        }
+    });
+    $('#engine-strokes').on('input', function () {
+        let value = this.value.replace(/[^0-9.]/g, '');
+        const parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts[1];
+        }
+        if (parts[1] && parts[1].length > 2) {
+            parts[1] = parts[1].substring(0, 2);
+            value = parts.join('.');
+        }
+        this.value = value;
     });
     ////////START TOGGLE
     function toggleParent() {
@@ -962,12 +1016,12 @@
                                             <div class="col-12">
                                                 <label class="text-muted-small mb-1 d-block">Body</label>
                                                 <input type="text" class="form-control form-control-sm flex-grow-1 me-2"
-                                                    value="${item.Body}" placeholder="Body" readonly>
+                                                    value="${item.Body && item.Body.trim() !== '' ? item.Body : 'NA'}" placeholder="Body" readonly>
                                             </div>
                                             <div class="col-12 mb-0">
                                                 <label class="text-muted-small mb-1 d-block">BodyType</label>
                                                 <input type="text" class="form-control form-control-sm"
-                                                    value="${item.BodyType}" placeholder="BodyType" readonly>
+                                                    value="${item.BodyType && item.BodyType.trim() !== '' ? item.BodyType : 'NA'}" placeholder="BodyType" readonly>
                                             </div>
                                             <br>
                                         </div>`;
@@ -1005,7 +1059,7 @@
                 if (data.respone === true) {
                         let html = '';
                         data.result.forEach(engine => {
-                            html += `<div class="editable-group">
+                            html += `<div class="editable-group ">
                                        <div class="d-flex align-items-center mb-2">
                                             <span class="color-indicator "></span>
                                             <input type="radio" class="form-check-input blue me-2" id="engine-${engine.ID}" name="engine-radio"
@@ -1197,7 +1251,7 @@
 
 
     $(function () {
-        $("#bodytype-txt").autocomplete({
+        $("#bodytype-txtxxxx").autocomplete({
             source: function (request, response) {
                 $.ajax({
                     url: '@Url.Action("GetBodytype", "Management")',
@@ -1255,20 +1309,21 @@
             .html(`<i class="fa ${btnIcon} me-1"></i> ${btnText}`)
             .off('click')
             .on('click', function () {
-                Swal.fire({
-                    title: "Confirm?",
-                    //text: "ยืนยันที่จะดำเนินการต่อ!",
-                    icon: "question",
-                    showCancelButton: true,
-                    confirmButtonColor: "#3085d6",
-                    cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes",
-                    cancelButtonText: "Cancel"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        saveEntity(mode, module, type, market, maker, range);
-                    }
-                });
+                checkEntity(mode, module, type, market, maker, range);
+                //Swal.fire({
+                //    title: "Confirm?",
+                //    //text: "ยืนยันที่จะดำเนินการต่อ!",
+                //    icon: "question",
+                //    showCancelButton: true,
+                //    confirmButtonColor: "#3085d6",
+                //    cancelButtonColor: "#d33",
+                //    confirmButtonText: "Yes",
+                //    cancelButtonText: "Cancel"
+                //}).then((result) => {
+                //    if (result.isConfirmed) {
+                //        saveEntity(mode, module, type, market, maker, range);
+                //    }
+                //});
 
             });
 
@@ -1308,6 +1363,58 @@
         }
 
         $('#entityModal').modal('hide');
+    }
+    function checkEntity(mode, module, type, market, maker, range) {
+        var value = $('#entityInput').val().trim();
+        $.ajax({
+            url: '@Url.Action("CheckOneValeVIO", "Management")',
+            data: { moduleID: module, marketID: market, makerID: maker, rangeID: range, val: value },
+            type: 'post',
+            dataType: 'json',
+            beforeSend: function () {
+                Swal.fire({
+                    title: "Confirm?",
+                    //text: "ยืนยันที่จะดำเนินการต่อ!",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        saveEntity(mode, module, type, market, maker, range);
+                    }
+                });
+            },
+            success: function (data) {
+                if (data.flag == 'Y') {
+
+                }
+                else if (data.flag == 'N') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Warning!',
+                        text: data.message,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'ปิด',
+                        allowOutsideClick: false,
+                        focusConfirm: false,
+                    });
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'ปิด',
+                        allowOutsideClick: false,
+                        focusConfirm: false,
+                    });
+                }
+            }
+        });
     }
     function addEntity(vmodule, market, maker, rang, value) {
         $.ajax({
@@ -1455,13 +1562,13 @@
             $('#rangeId').val(options.rangeId || '');
             $('#modelId').val(options.modelId || '');
             $('#bodycod-txt').val('');
-            $('#bodytype-txt').val('');
+            $('#bodytype-txt').val('').change();
         }
 
         if (mode === 'edit') {
             $('#bodyId').val(options.bodyId || '');
             $('#bodycod-txt').val(options.bodyName || '');
-            $('#bodytype-txt').val(options.bodyType || '');
+            $('#bodytype-txt').val(options.bodyType || '').change();
 
         }
 
