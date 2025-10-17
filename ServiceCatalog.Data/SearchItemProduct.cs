@@ -15,9 +15,13 @@ namespace ServiceCatalog.Data
         {
 
         }
-        public List<StoredSearchItemProductsModel> SearchItem(string Stkcode, string BrandId, string RowNumber, string ApiStatus, string CallDate)
+        public List<StoredSearchItemProductsModel> SearchItem(string Company, string SecCode, string StockGroup, string ProdCode, string Stkcode, string BrandId, string RowNumber, string ApiStatus, string CallDate)
         {
             var p = new SqlParameters();
+            p.AddParams("@inCompany", Company);
+            p.AddParams("@inSec", SecCode);
+            p.AddParams("@inStockGroup", StockGroup);
+            p.AddParams("@inProdCode", ProdCode);
             p.AddParams("@inStkcode", Stkcode);
             p.AddParams("@inBrandId", BrandId);
             p.AddParams("@inStatus", ApiStatus.ToTrim());

@@ -178,21 +178,43 @@ namespace ServiceCatalog.Controllers
                 @ViewBag.ListPartDetail
             });
         }
-        public JsonResult getStockGroup(string prodCode, string company)
+        public JsonResult getSection(string prodCode, string company)
         {
-            List<stockGroupList> stockGroupList = new List<stockGroupList>();
-
+            List<sectionList> sectionList = new List<sectionList>();
             var connectionString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             SqlConnection Connection = new SqlConnection(connectionString);
             Connection.Open();
-
-            var command = new SqlCommand("P_Search_StockGroup", Connection);
-
+            var command = new SqlCommand("P_Search_Section", Connection);
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@inProdCode", prodCode);
             command.Parameters.AddWithValue("@inCompany", company);
+            SqlDataReader recSection = command.ExecuteReader();
+            while (recSection.Read())
+            {
+                sectionList.Add(new sectionList()
+                {
+                    SEC = recSection["SEC"].ToString(),
+                    SECNAM = recSection["SECNAM"].ToString()
+                });
+            }
+            recSection.Close();
+            recSection.Dispose();
+            command.Dispose();
+            Connection.Close();
+            return Json(sectionList, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult getStockGroup(string prodCode, string secCode,  string company)
+        {
+            List<stockGroupList> stockGroupList = new List<stockGroupList>();
+            var connectionString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
+            SqlConnection Connection = new SqlConnection(connectionString);
+            Connection.Open();
+            var command = new SqlCommand("P_Search_StockGroup", Connection);
+            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.AddWithValue("@inProdCode", prodCode);
+            command.Parameters.AddWithValue("@inSecCode", secCode);
+            command.Parameters.AddWithValue("@inCompany", company);
             SqlDataReader dr = command.ExecuteReader();
-
             while (dr.Read())
             {
                 stockGroupList.Add(new stockGroupList()
@@ -209,7 +231,7 @@ namespace ServiceCatalog.Controllers
             Connection.Close();
             return Json(stockGroupList, JsonRequestBehavior.AllowGet);
         }
-        public JsonResult getStockCode(string txtSearch, string company, string stockGroup, string prodCode)
+        public JsonResult getStockCode(string txtSearch, string company, string secCode, string stockGroup, string prodCode)
         {
             string CUSCOD = string.Empty;
             List<string> StockCode = new List<string>();
@@ -220,6 +242,7 @@ namespace ServiceCatalog.Controllers
             command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@inTxtSearch", txtSearch);
             command.Parameters.AddWithValue("@inCompany", company);
+            command.Parameters.AddWithValue("@inSec", secCode);
             command.Parameters.AddWithValue("@inStockGroup", stockGroup);
             command.Parameters.AddWithValue("@inProdCode", prodCode);
             Connection.Open();
@@ -238,6 +261,11 @@ namespace ServiceCatalog.Controllers
         {
             public string STKGRP { get; set; }
             public string GRPNAM { get; set; }
+        }
+        public class sectionList
+        {
+            public string SEC { get; set; }
+            public string SECNAM { get; set; }
         }
     }
 }
