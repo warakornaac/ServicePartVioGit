@@ -27,13 +27,13 @@
 
 </style>
 <div class="page-header">
-    <h1 class="page-title my-auto">Part Management </h1>
+    <h1 class="page-title my-auto"> Part Spec Maintenance </h1>
     <div>
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item">
                 <a href="@Url.Action("Index","PartSpecification")">Home</a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">Part Management</li>
+            <li class="breadcrumb-item active" aria-current="page">Part Spec Maintenance</li>
         </ol>
     </div>
 </div>
@@ -41,7 +41,7 @@
 <div class="row">
     <div class="col-xl-12">
         <div class="card custom-card">
-            <div class="card-header justify-content-between"> <div class="card-title"> Part Management (18-3274C, 044.581, 188259)</div> <div class="prism-toggle"> </div> </div>
+            <div class="card-header justify-content-between"> <div class="card-title"> Part Spec (18-3274C, 044.581, 188259, 7135-573)</div> <div class="prism-toggle"> </div> </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
@@ -60,19 +60,16 @@
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label for="form-text" class="form-label fs-14 text-dark">Company : </label>
+                        <label for="form-text" class="form-label fs-14 text-dark">Sec : </label>
                         <div class="input-group">
                             <div class="input-group-text">
-                                <i class="ri-hotel-line"></i>
+                                <i class="ri-roadster-fill"></i>
                             </div>
-                            <select class="form-control selectpicker" id="txtCompany" name="txtCompany" style="width: 100%;" data-live-search="true" title="SELECT COMPANY">
-                                <option value="ALL">SELECT COMPANY</option>
-                                <option value="TAC"> TAC </option>
-                                <option value="AAC"> AAC </option>
-                                <option value="OMP"> OMP </option>
+                            <select class="form-control selectpicker" id="txtSec" name="txtSec" style="width: 100%;" data-live-search="true" title="SELECT SEC">
+                                <option value="ALL">SELECT SEC</option>
                             </select>
                         </div>
-                    </div>
+                    </div>     
                     <div class="col-md-4">
                         <label for="form-text" class="form-label fs-14 text-dark">Stock Group : </label>
                         <div class="input-group">
@@ -84,7 +81,22 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-4">
+                        <label for="form-text" class="form-label fs-14 text-dark">Company : </label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <i class="ri-hotel-line"></i>
+                            </div>
+                            <select class="form-control selectpicker" id="txtCompany" name="txtCompany" style="width: 100%;" data-live-search="true" title="SELECT COMPANY">
+                                <option value="ALL">SELECT COMPANY</option>
+                                <option value="TAC"> TAC </option>
+                                <option value="AAC"> AAC </option>
+                                <option value="OMP"> OMP </option>
+                                <option value="AGS"> AGS </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
                         <label for="form-text" class="form-label fs-14 text-dark">Stock Code : </label>
                         <div class="input-group">
                             <div class="input-group-text">
@@ -116,8 +128,8 @@
 <div id="showResultPart" class="pt-1 pb-1"></div>
 
 <script defer>
-    var prodCode = $('#txtProductCode option:selected').val();
     var company = $('#txtCompany option:selected').val();
+    var prodCode = $('#txtProductCode option:selected').val();
     var stockGroup = $('#txtStockGroup option:selected').val();
     var stockCodeSearch = $('#stockCodeSearch').val();
     var stockCodeByPartSpec = $('#stockCodeByPartSpec').val();
@@ -212,6 +224,7 @@
             var param = {
                 txtSearch: $("#txtStockCode").val(),
                 company: $('#txtCompany option:selected').val(),
+                secCode: $('#txtSec option:selected').val(),
                 stockGroup: $('#txtStockGroup option:selected').val(),
                 prodCode: $('#txtProductCode option:selected').val(),
             };
@@ -252,16 +265,44 @@
     $('#txtProductCode').change(function () {
         var prodCode = $(this).val();
         var company = $('#txtCompany option:selected').val();
-        GetStockGroup(prodCode, company);
+        GetSection(prodCode, company);
+    });
+    //get sec
+    $('#txtSec').change(function () {
+        var prodCode = $('#txtProductCode option:selected').val();
+        var company = $('#txtCompany option:selected').val();
+        var sec = $(this).val();
+        GetStockGroup(prodCode, sec, company);
     });
     //get Company
     $('#txtCompany').change(function () {
         var company = $(this).val();
+        var sec = $('#txtSec option:selected').val();
         var prodCode = $('#txtProductCode option:selected').val();
-        GetStockGroup(prodCode, company);
+        GetStockGroup(prodCode, sec, company);
     });
+    //get section
+    function GetSection(prodCode, company) {
+        $.ajax({
+            url: '@Url.Action("getSection", "PartSpecification")',
+            data: {
+                prodCode: prodCode
+            },
+            type: "POST",
+            dataType: "JSON",
+            success: function (data) {
+                var select = $("#txtSec");
+                select.children().remove();
+                select.append($("<option>").val("ALL").text("STOCK SEC ALL"));
+                $(data).each(function (index, item) {
+                    select.append($("<option>").val(item.SEC).text(item.SEC + "/" + item.SECNAM));
+                });
+                $('#txtSec').selectpicker('refresh');
+            }
+        });
+    }
     //get stockGroup
-    function GetStockGroup(prodCode, company) {
+    function GetStockGroup(prodCode, secCode, company) {
         if (prodCode == null || prodCode == '') {
             prodCode = "ALL";
         }
@@ -273,6 +314,7 @@
             url: '@Url.Action("getStockGroup", "PartSpecification")',
             data: {
                 prodCode: prodCode,
+                secCode: secCode,
                 company: company,
             },
             type: "POST",

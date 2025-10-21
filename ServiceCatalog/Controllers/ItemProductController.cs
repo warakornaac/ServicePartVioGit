@@ -18,16 +18,36 @@ namespace ServiceCatalog.Controllers
         // GET: ItemProduct
         public ActionResult Index()
         {
+            List<SelectListItem> listProductName = new List<SelectListItem>();
+
+            using (SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString))
+            {
+                connection.Open();
+                var command = new SqlCommand("P_Search_Product_Name", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@inUserId", "warakorn.pra");
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    listProductName.Add(new SelectListItem
+                    {
+                        Value = reader["PROD"].ToString(),
+                        Text = $"{reader["PROD"]}/{reader["PRODNAM"]}"
+                    });
+                }
+            }
+            @ViewBag.listProductName = listProductName;
             return View("IndexItemProduct", new
             {
-                // @ViewBag.listBrand
+                @ViewBag.listProductName
+
             });
         }
-        public ActionResult GetListItemProduct(string Stkcode, string BrandId, string RowNumber, string ApiStatus, string Calldate)
+        public ActionResult GetListItemProduct(string Company, string SecCode, string StockGroup, string ProdCode, string Stkcode, string BrandId, string RowNumber, string ApiStatus, string Calldate)
         {
             var SearchItemProduct = new List<StoredSearchItemProductsModel>();
 
-            SearchItemProduct = new SearchItemProduct().SearchItem(Stkcode, BrandId, RowNumber, ApiStatus, Calldate);
+            SearchItemProduct = new SearchItemProduct().SearchItem(Company, SecCode, StockGroup, ProdCode, Stkcode, BrandId, RowNumber, ApiStatus, Calldate);
             @ViewBag.listSearchItemProduct = SearchItemProduct;
             return PartialView("_ListItemProduct", new
             {
