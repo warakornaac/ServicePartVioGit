@@ -8,6 +8,36 @@
         min-height: 500px;
         overflow-y: auto;
     }
+
+    .custom-space {
+        max-height: 100%; /* หรือใช้ 100% ถ้าอยากให้สูงเท่าฝั่งซ้าย */
+        overflow-y: auto;
+        overflow-x: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+        /* เพื่อให้ header table ลอยอยู่เวลา scroll */
+        .custom-space .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            z-index: 2;
+        }
+
+        /* scrollbar style (optional สวยๆ เพิ่มได้) */
+        .custom-space::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-space::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+        }
+
+            .custom-space::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(0, 0, 0, 0.75);
+            }
 </style>
 <h2>VIO Inquiry</h2>
 <div class="container-fluid mt-3">
@@ -143,7 +173,7 @@
                     </div>
                 </div>
                 <div class="col-12 mt-3">
-                    <div class="table-responsive table-style">
+                    <div class="table-responsive table-style custom-space">
                         <table class="table table-striped table-bordered table-hover" id="table-vio">
                             <thead>
                                 <tr>

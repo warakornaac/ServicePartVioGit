@@ -39,7 +39,7 @@ namespace ServiceCatalog.Controllers
         }
 
 
-        public ActionResult LoadWaitingApproval(string PROD = "")
+        public ActionResult LoadWaitingApproval(string PROD = "", string STKCOD = "")
         {
             List<LinkageApproveChangeViewModel> result = new List<LinkageApproveChangeViewModel>();
             string message = string.Empty;
@@ -53,6 +53,7 @@ namespace ServiceCatalog.Controllers
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@inPRD", PROD);
+                        cmd.Parameters.AddWithValue("@inSTKCOD", STKCOD);
                         cmd.Parameters.AddWithValue("@inKtype", "");
                         cmd.Parameters.AddWithValue("@inTrutype", "");
                         cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
@@ -87,7 +88,7 @@ namespace ServiceCatalog.Controllers
                             result.Add(new LinkageApproveChangeViewModel
                             {
                                 apprvVIO = aprList,
-                                itemLink = LoadDetailLink(kTyp, truTyp)
+                                itemLink = LoadDetailLink(kTyp, truTyp, PROD, STKCOD)
                             });
                         }
 
@@ -108,7 +109,7 @@ namespace ServiceCatalog.Controllers
                 @ViewBag.LinkageApproveChangeList
             });
         }
-        public List<ListLinkage> LoadDetailLink(string Ktype, string TruType)
+        public List<ListLinkage> LoadDetailLink(string Ktype, string TruType, string PROD = "", string STKCOD = "")
         {
             var list = new List<ListLinkage>();
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString))
@@ -117,6 +118,8 @@ namespace ServiceCatalog.Controllers
                 using (SqlCommand cmd = new SqlCommand("P_Get_Approval_ItemList", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@inPRD", PROD);
+                    cmd.Parameters.AddWithValue("@inSTKCOD", STKCOD);
                     cmd.Parameters.AddWithValue("@inKtype", Ktype);
                     cmd.Parameters.AddWithValue("@inTrutype", TruType);
                     cmd.Parameters.AddWithValue("@inUser", "thiraphon.pra");
@@ -139,7 +142,7 @@ namespace ServiceCatalog.Controllers
             return list;
         }
 
-        public JsonResult ApprovalVIO(string Ktype, string TruType, string OldTruType, string Flag)
+        public JsonResult ApprovalVIO(string Ktype, string TruType, string OldTruType, string STKCOD, string Flag)
         {
             string message = string.Empty;
             string respone = string.Empty;
@@ -151,6 +154,7 @@ namespace ServiceCatalog.Controllers
                     using (SqlCommand cmd = new SqlCommand("P_Save_Approve_VIO", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@inSTKCOD", STKCOD);
                         cmd.Parameters.AddWithValue("@inKtype", Ktype);
                         cmd.Parameters.AddWithValue("@inTrutype", TruType);
                         cmd.Parameters.AddWithValue("@inOldTrutype", OldTruType);
@@ -170,6 +174,25 @@ namespace ServiceCatalog.Controllers
 
 
             return Json(new { message = message, respone = respone }, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult GetApprovalItem(string Ktype, string TruType)
+        {
+            string message = string.Empty;
+            string respone = string.Empty;
+            var list = new List<ListLinkage>();
+
+            try
+            {
+                list = LoadDetailLink(Ktype, TruType, "");
+                message = "";
+                respone = "Y";
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message; respone = "N";
+            }
+            return Json(new { message = message, respone = respone, result = list }, JsonRequestBehavior.AllowGet);
         }
     }
 }

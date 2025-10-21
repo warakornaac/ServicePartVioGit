@@ -75,7 +75,7 @@
                             </div>
 
                             <div class="">
-                                <button type="button" class="btn btn-success" onclick="getApprv()">ref</button>
+                                <button type="button" class="btn btn-success" onclick="getApprv('','')">ref</button>
                             </div>
                         </div>
                     </div>
@@ -99,16 +99,74 @@
 
 </div>
 
+<!-- Modal -->
+<!--Modal Item-->
+<div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-3 shadow-lg">
+            <!-- Header -->
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="itemModalTitle">Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <!-- Body -->
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table" id="show-item-table">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>STKCOD</th>
+                                <th>STKDES</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="modal-footer d-flex align-items-end">
+                <button type="button" class="btn btn-danger px-4" data-bs-dismiss="modal">
+                    <i class="fa fa-times me-1"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
     $(document).ready(function () {
-        getApprv();
+        getApprv('','');
     });
-    $(document).on('click', '.hover-row', function (e) {
-        if ($(e.target).is('input[type="checkbox"]')) return;
-        const checkbox = $(this).find('input[type="checkbox"]');
-        checkbox.prop('checked', !checkbox.prop('checked'));
-        checkbox.trigger('change');
+
+    $(document).on('click', '[id^="td-itemlink-"]', function (e) {
+            if ($(e.target).is('input[type="checkbox"]')) return;
+            const checkbox = $(this).find('input[type="checkbox"]');
+            checkbox.prop('checked', !checkbox.prop('checked'));
+            checkbox.trigger('change');
     });
+
+    $(document).on('change', '[id^="check-item-apprv-all-"]', function () {
+        var tru = $(this).data('newtrutyp');
+        let select = $(`input[id*="${true}"`);
+        if ($(this).is(':checked')) {
+            $('[id^="check-apprv-' + tru + '"]').each(function () {
+                $(this).prop('checked', true);
+            });
+        }
+        else {
+            $('[id^="check-apprv-' + tru + '"]').each(function () {
+                $(this).prop('checked', false);
+            });
+        }
+    });
+    //$(document).on('click', '.hover-row', function (e) {
+    //    if ($(e.target).is('input[type="checkbox"]')) return;
+    //    const checkbox = $(this).find('input[type="checkbox"]');
+    //    checkbox.prop('checked', !checkbox.prop('checked'));
+    //    checkbox.trigger('change');
+    //});
         //get stkcode
     $("#txtStockCode").autocomplete({
         selectFirst: true,
@@ -146,7 +204,8 @@
             var splitval = _splito;
             _scus = _splito[0].trim();
             console.log("sub(0) = " + _splito[0].trim() + " sub(1) = " + _splito[1].trim())
-            searchPartByStkcode(_splito[0].trim());
+            //searchPartByStkcode(_splito[0].trim());
+            getApprv('',_splito[0].trim());
             if (_splito[0] != null) {
                 $("#stockCodeSearch").val(_splito[0].trim());
             }
@@ -158,6 +217,7 @@
         var prodCode = $(this).val();
         var company = $('#txtCompany option:selected').val();
         GetStockGroup(prodCode, company);
+        changeProduct(prodCode);
     });
     //get Company
     $('#txtCompany').change(function () {
@@ -165,6 +225,21 @@
         var prodCode = $('#txtProductCode option:selected').val();
         GetStockGroup(prodCode, company);
     });
+
+
+    //btn show more
+    $(document).on('click', '[id^="show-more-"]', function () {
+        var ktyp = $(this).data('ktype');
+        var tru = $(this).data('tru');
+
+        loadItemData(ktyp, tru,'');
+    });
+    //reset stk
+    function resetStkcode() {
+        $("#txtStockCode").val('');
+        $('#txtStockCode').focus();
+        //Reset();
+    }
     //get stockGroup
     function GetStockGroup(prodCode, company) {
         if (prodCode == null || prodCode == '') {
@@ -192,14 +267,14 @@
                 });
                 $('#txtStockGroup').selectpicker('refresh');
             }
-        });
+       });
     }
 
 
-    function getApprv() {
+    function getApprv(prod,stkcod) {
         $.ajax({
             url: '@Url.Action("LoadWaitingApproval", "ApprovePM")',
-            data: {},
+            data: { PROD: prod, STKCOD: stkcod },
             type: 'post',
             dataType: 'html',
             beforeSend: function () {
@@ -247,8 +322,9 @@
                         let ktype = $(this).data('ktype');
                         let newtru = $(this).data('newtrutyp');
                         let oldtru = $(this).data('oldtrutyp');
+                        let stkcod = $(this).data('stk');
 
-                        requests.push(apprvChangeVIO(ktype, newtru, oldtru,flag));
+                        requests.push(apprvChangeVIO(ktype, newtru, oldtru, stkcod,flag));
                     });
 
                     Promise.all(requests).then(() => {
@@ -260,7 +336,7 @@
                             icon: "success"
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                getApprv();
+                                getApprv("","");
                             }
                         });
                     }).catch(() => {
@@ -282,14 +358,66 @@
         }//end else
     }  //end func
 
-    function apprvChangeVIO(ktype, newtru, oldtru, flag) {
+    function apprvChangeVIO(ktype, newtru, oldtru, stkcod, flag) {
         return $.ajax({
             url: '@Url.Action("ApprovalVIO", "ApprovePM")',
-            data: { Ktype: ktype, TruType: newtru, OldTruType: oldtru, Flag: flag },
+            data: { Ktype: ktype, TruType: newtru, OldTruType: oldtru, STKCOD: stkcod, Flag: flag },
             type: 'post',
             dataType: 'json'
         });
     }
 
+
+    function loadItemData(ktyp,tru,stkcod) {
+        $.ajax({
+            url: '@Url.Action("GetApprovalItem", "ApprovePM")',
+            data: { Ktype: ktyp, TruType: tru },
+            type: 'post',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#show-item-table tbody').html('');
+            },
+            success: function (data) {
+                var SubmitPages = '';
+                $('#itemModal').modal('show');
+                if (data.respone == 'Y') {
+                    if (data.result.length > 0) {
+                        data.result.forEach(item => {
+                            SubmitPages += '<tr>';
+                            SubmitPages += '<td>' + item.Company + '</td>';
+                            SubmitPages += '<td>' + item.STKCOD + '</td>';
+                            SubmitPages += '<td>' + item.STKDES + '</td>';
+                            SubmitPages += '</tr>';
+                        });
+                        $('#show-item-table tbody').html(SubmitPages);
+                    }
+                    else {
+                        $('#show-item-table tbody').html('<tr><td>No item link<td></tr>');
+                    }
+                }
+                else {
+                    Swal.fire({
+                        title: "Error?",
+                        text: data.message,
+                        icon: "error"
+                    });
+                }
+            }
+        });
+    }
+
+    function changeProduct(prd) {
+        var stk = $('#txtStockCode').val();
+        var _splito = [];
+
+        if (stk && stk.includes('|')) {
+            _splito = stk.split('|');
+        }
+
+        var splitval = _splito;
+        var _scus = _splito.length > 0 ? _splito[0].trim() : '';
+        //console.log("sub(0) = " + _splito[0].trim() + " sub(1) = " + _splito[1].trim())
+        getApprv(prd, _scus);
+    }
 
 </script>

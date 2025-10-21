@@ -5,10 +5,42 @@
     .hover-row {
         transition: background-color 0.2s ease, box-shadow 0.2s ease;
         border-radius: 8px;
-        cursor: pointer;
+        background-color: #f8f9fa;
+        /*cursor: pointer;*/
     }
 
-        .hover-row:hover {
+    .custom-space {
+        max-height: 320px; /* หรือใช้ 100% ถ้าอยากให้สูงเท่าฝั่งซ้าย */
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+        /* เพื่อให้ header table ลอยอยู่เวลา scroll */
+        .custom-space .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            z-index: 2;
+        }
+
+        /* scrollbar style (optional สวยๆ เพิ่มได้) */
+        .custom-space::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-space::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.25);
+            border-radius: 6px;
+        }
+
+            .custom-space::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+
+    /*        .hover-row:hover {
             background-color: #f8f9fa;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
@@ -17,7 +49,10 @@
             border-color: #0d6efd;
             background-color: #e7f1ff;
             box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
-        }
+        }*/
+    .table-select {
+        cursor: pointer;
+    }
 
     .vehicle-info h5 {
         background-color: #f1f3f5;
@@ -65,14 +100,14 @@
             <div class="card-body">
                 @foreach (var item in dataRow)
                 {
-                    <div class="row hover-row">
+                    <div class="row  d-flex align-items-stretch hover-row mb-2">
                         <div class="col-1 d-flex justify-content-center">
-                            <input type="checkbox" class="form-check-input" id="check-apprv-@item.apprvVIO.New_TruType" name="selectApprv" style="width: 25px; height: 25px;"
-                                   data-newtrutyp="@item.apprvVIO.New_TruType"
-                                   data-oldtrutyp="@item.apprvVIO.Old_TruType"
-                                   data-ktype="@item.apprvVIO.New_Ktype" />
+                            @*<input type="checkbox" class="form-check-input" id="check-apprv-@item.apprvVIO.New_TruType" name="selectApprv" style="width: 25px; height: 25px;"
+                                data-newtrutyp="@item.apprvVIO.New_TruType"
+                                data-oldtrutyp="@item.apprvVIO.Old_TruType"
+                                data-ktype="@item.apprvVIO.New_Ktype" />*@
                         </div>
-                        <div class="col-5">
+                        <div class="col-5 p-2">
                             <div class="card ">
                                 <div class="card-body p-0 vehicle-info">
                                     <div class="row">
@@ -82,14 +117,15 @@
                                         <span class="col-4">Market Segment: @item.apprvVIO.MarketSegment</span>
                                         <span class="col-4">Vehicle Segment: @item.apprvVIO.VehicleSegment</span>
                                         <span class="col-4">Maker: @item.apprvVIO.Maker</span>
-                                        <span class="col-4">Model: @item.apprvVIO.Model</span>
+                                        @*<span class="col-4">Model: @item.apprvVIO.Model</span>*@
+                                        <span class="col-4">YearTo: @(string.IsNullOrEmpty(item.apprvVIO.Model) ? "-" : item.apprvVIO.Model)</span>
                                         <span class="col-4">Body: @item.apprvVIO.Body (@item.apprvVIO.BodyType)</span>
                                         <span class="col-4">Engine: @item.apprvVIO.Strokes @item.apprvVIO.EngineType </span>
                                         <span class="col-4">DriveType: @item.apprvVIO.New_DriveType</span>
                                         <span class="col-4">YearFrom: @item.apprvVIO.New_YearFrom</span>
-                                        <span class="col-4">YearTo: @item.apprvVIO.New_YearTo </span>
+                                        <span class="col-4">YearTo: @(string.IsNullOrEmpty(item.apprvVIO.New_YearTo) ? "-" : item.apprvVIO.New_YearTo)</span>
                                         <span class="col-4">Ktype: @item.apprvVIO.New_Ktype</span>
-                                        <span class="col-4">TruType: @item.apprvVIO.New_TruType</span>
+                                        <span class="col-8">TruType: @item.apprvVIO.New_TruType</span>
                                     </div>
                                     <hr class="m-0" />
                                     <div class="row mt-2">
@@ -99,58 +135,70 @@
                                         <span class="col-4">Market Segment: @item.apprvVIO.MarketSegment</span>
                                         <span class="col-4">Vehicle Segment: @item.apprvVIO.VehicleSegment</span>
                                         <span class="col-4">Maker: @item.apprvVIO.Maker</span>
-                                        <span class="col-4">Model: @item.apprvVIO.Model</span>
+                                        <span class="col-4">YearTo: @(string.IsNullOrEmpty(item.apprvVIO.Model) ? "-" : item.apprvVIO.Model)</span>
                                         <span class="col-4">Body: @item.apprvVIO.Body (@item.apprvVIO.BodyType)</span>
                                         <span class="col-4">Engine: @item.apprvVIO.Strokes @item.apprvVIO.EngineType </span>
                                         <span class="col-4">DriveType: @item.apprvVIO.Old_DriveType</span>
                                         <span class="col-4">YearFrom: @item.apprvVIO.Old_YearFrom</span>
-                                        <span class="col-4">YearTo: @item.apprvVIO.Old_YearTo </span>
+                                        @*<span class="col-4">YearTo: @item.apprvVIO.Old_YearTo </span>*@
+                                        <span class="col-4">YearTo: @(string.IsNullOrEmpty(item.apprvVIO.New_YearTo) ? "-" : item.apprvVIO.New_YearTo)</span>
                                         <span class="col-4">Ktype: @item.apprvVIO.Old_Ktype</span>
-                                        <span class="col-4">TruType: @item.apprvVIO.Old_TruType</span>
+                                        <span class="col-8">TruType: @item.apprvVIO.Old_TruType</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6 p-2">
-                            <div class="table-responsive">
-                                <table class="table">
+                        <div class="col-6 p-2  ">
+                            <div class="table-responsive custom-space">
+                                <table class="table table-hover mb-0">
                                     <thead>
                                         <tr>
+                                            <th>
+                                                <input type="checkbox" class="form-check-input border-black" id="check-item-apprv-all-@item.apprvVIO.New_TruType" name="selectApprvItemAll"
+                                                       data-newtrutyp="@item.apprvVIO.New_TruType"
+                                                       data-oldtrutyp="@item.apprvVIO.Old_TruType"
+                                                       data-ktype="@item.apprvVIO.New_Ktype" />
+                                            </th>
                                             <th>Company</th>
                                             <th>STKCOD</th>
                                             <th>STKDES</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="table-select">
                                         @{
                                             int i = 0;
                                         }
                                         @foreach (var detail in item.itemLink)
                                         {
                                             ++i;
-                                            <tr>
+                                            <tr id="td-itemlink-@detail.STKCOD">
+                                                <td>
+                                                    <input type="checkbox" class="form-check-input border-black" id="check-apprv-@item.apprvVIO.New_TruType-@detail.STKCOD" name="selectApprvItem"
+                                                           data-newtrutyp="@item.apprvVIO.New_TruType"
+                                                           data-oldtrutyp="@item.apprvVIO.Old_TruType"
+                                                           data-ktype="@item.apprvVIO.New_Ktype"
+                                                           data-stk="@detail.STKCOD" />
+                                                </td>
                                                 <td>@detail.Company</td>
                                                 <td>@detail.STKCOD</td>
                                                 <td>@detail.STKDES</td>
                                             </tr>
-                                            if (i >= 3)
-                                            {
-                                                break;
-                                            }
+                                            //if (i >= 3)
+                                            //{
+                                            //    break;
+                                            //}
                                         }
-
                                     </tbody>
                                 </table>
                             </div>
-                            @if (item.itemLink.Count > 3)
-                            {
-                                <a class="link-offset-2 link-underline link-underline-opacity-100" href="#">see more...</a>
-                            }
+                            @*@if (item.itemLink.Count > 3)
+                                {
+                                    <a class="link-offset-2 link-underline link-underline-opacity-100" href="#" data-tru="@item.apprvVIO.New_TruType" data-ktype="@item.apprvVIO.New_Ktype" id="show-more-@item.apprvVIO.New_TruType">see more...</a>
+                                }*@
                         </div>
                     </div>
                 }
             </div>
-
         </div>
     </div>
 </div>
