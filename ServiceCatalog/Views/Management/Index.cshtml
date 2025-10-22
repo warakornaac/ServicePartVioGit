@@ -181,7 +181,7 @@
 
 
     .swal-wide {
-        max-width: 1000px !important; /* ปรับได้ตามต้องการ */
+        max-width: 1000px !important;
     }
 
     .swal2-html-container {
@@ -190,9 +190,27 @@
     }
 
         .swal2-html-container table {
-            width: 100% !important; /* table เต็มพื้นที่ */
-            font-size: 13px; /* ปรับฟอนต์เล็กลงนิดนึง */
+            width: 100% !important;
+            font-size: 13px;
         }
+
+    .scroll-custom {
+        max-height: 100%;
+        overflow: auto;
+    }
+        /* scrollbar style (optional สวยๆ เพิ่มได้) */
+        .scroll-custom::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scroll-custom::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 6px;
+        }
+
+            .scroll-custom::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(0, 0, 0, 0.75);
+            }
 </style>
 
 <div class="page-header">
@@ -223,7 +241,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body scroll-custom">
                     <div id="marketsegList">
                         @if (ViewBag.MarketSeg != null)
                         {
@@ -277,7 +295,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body scroll-custom">
                     <div id="vehiclesegList">
                         @if (ViewBag.VehicleSeg != null)
                         {
@@ -336,7 +354,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body scroll-custom">
                     <div id="makerList">
                         <!-- Maker items will be inserted here -->
                     </div>
@@ -360,7 +378,7 @@
                         <div id="addModelRange"></div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body scroll-custom">
                     <div id="modelRangeList">
                     </div>
 
@@ -379,7 +397,7 @@
                         <div id="addModel"></div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body scroll-custom">
                     <div id="modelList">
                     </div>
 
@@ -399,7 +417,7 @@
                         <div id="addBody"></div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body scroll-custom">
                     <div id="bodyList"></div>
 
                 </div>
@@ -418,7 +436,7 @@
                         <div id="addEngine"></div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body scroll-custom">
                     <div id="engineList">
                         <!-- Engine items will be inserted here -->
                     </div>
@@ -438,7 +456,7 @@
                         <div id="addTru"></div>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body scroll-custom">
                     <div id="truList">
                         <!-- Engine items will be inserted here -->
                     </div>
