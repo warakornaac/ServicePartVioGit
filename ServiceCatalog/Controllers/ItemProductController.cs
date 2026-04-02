@@ -88,7 +88,7 @@ namespace ServiceCatalog.Controllers
             });
         }
         //Get stored
-        private DataTable GetDataFromStore(string storeName, string inSheet)
+        private DataTable GetDataFromStore(string storeName, string inSheet, string prodCode, string sec, string stockGroup, string company, string stkcode, string status, string dateCall)
         {
             var dt = new DataTable();
 
@@ -97,8 +97,15 @@ namespace ServiceCatalog.Controllers
             {
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                // เพิ่ม parameter @inSheet
+                //  parameter @inSheet
                 cmd.Parameters.AddWithValue("@inSheet", inSheet ?? string.Empty);
+                cmd.Parameters.AddWithValue("@inProdCode", prodCode ?? string.Empty);
+                cmd.Parameters.AddWithValue("@inSec", sec ?? string.Empty);
+                cmd.Parameters.AddWithValue("@inStockGroup", stockGroup ?? string.Empty);
+                cmd.Parameters.AddWithValue("@inCompany", company ?? string.Empty);
+                cmd.Parameters.AddWithValue("@inStkcode", stkcode ?? string.Empty);
+                cmd.Parameters.AddWithValue("@inStatus", status ?? string.Empty);
+                cmd.Parameters.AddWithValue("@inDateCall", dateCall ?? string.Empty);
 
                 using (var adapter = new SqlDataAdapter(cmd))
                 {
@@ -108,15 +115,16 @@ namespace ServiceCatalog.Controllers
 
             return dt;
         }
-        public ActionResult ExportProductItem()
+        public ActionResult ExportProductItem(string prodCode, string sec, string stockGroup, string company, string stkcode, string status, string dateCall)
         {
-            var listProductApi = GetDataFromStore("P_Export_Product_Api", "Product_Api");
-            var listProductDescription = GetDataFromStore("P_Export_Product_Api", "Product_Description");
-            var listProductSpec = GetDataFromStore("P_Export_Product_Api", "Product_Spec");
-            var listProductCompetitor = GetDataFromStore("P_Export_Product_Api", "Product_Competitor");
-            var listProductOem = GetDataFromStore("P_Export_Product_Api", "Product_Oem");
-            var listProductImage = GetDataFromStore("P_Export_Product_Api", "Product_Image");
-            var listProductLinkage = GetDataFromStore("P_Export_Product_Api", "Product_Linkage");
+            string storedName = "P_Export_Product_Api";
+            var listProductApi = GetDataFromStore(storedName, "Product_Api", prodCode, sec, stockGroup, company, stkcode, status, dateCall);
+            var listProductDescription = GetDataFromStore(storedName, "Product_Description", prodCode, sec, stockGroup, company, stkcode, status, dateCall);
+            var listProductSpec = GetDataFromStore(storedName, "Product_Spec", prodCode, sec, stockGroup, company, stkcode, status, dateCall);
+            var listProductCompetitor = GetDataFromStore(storedName, "Product_Competitor", prodCode, sec, stockGroup, company, stkcode, status, dateCall);
+            var listProductOem = GetDataFromStore(storedName, "Product_Oem", prodCode, sec, stockGroup, company, stkcode, status, dateCall);
+            var listProductImage = GetDataFromStore(storedName, "Product_Image", prodCode, sec, stockGroup, company, stkcode, status, dateCall);
+            var listProductLinkage = GetDataFromStore(storedName, "Product_Linkage", prodCode, sec, stockGroup, company, stkcode, status, dateCall);
 
             using (var workbook = new XLWorkbook())
             {
