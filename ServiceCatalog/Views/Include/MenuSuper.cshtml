@@ -111,6 +111,22 @@
                 <span class="side-menu__label">Approve Data Linkage</span>
             </a>
         </li>
+        @if (this.Session["UserType"].ToString() == "1")
+        {
+            <li class="slide">
+                <a href="@Url.Action("Index", "ManageUser")" class="side-menu__item">
+                    <i class="fa fa-user-o side-menu__icon"></i>
+                    <span class="side-menu__label">Manage User</span>
+                </a>
+            </li>
+        }
+        <li class="slide">
+            <a href="#" class="side-menu__item" onclick="logoutSys();">
+                <i class="fa fa-sign-out side-menu__icon"></i>
+                <span class="side-menu__label">Logout</span>
+            </a>
+        </li>
+
         <!--<li class="slide has-sub">
         <a href="javascript:void(0);" class="side-menu__item">
             <i class="fe fe-slack side-menu__icon"></i>
@@ -249,3 +265,31 @@
     </ul>
     <div class="slide-right" id="slide-right"><svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24" height="24" viewBox="0 0 24 24"> <path d="M10.707 17.707 16.414 12l-5.707-5.707-1.414 1.414L13.586 12l-4.293 4.293z"></path> </svg></div>
 </nav>
+<script>
+    function logoutSys() {
+        Swal.fire({
+            title: 'Are you sure want to logout?',
+            // html: html,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#00a65a',
+            cancelButtonColor: '#C1C1C1',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No',
+            allowOutsideClick: true,
+            focusConfirm: false,
+        }).then((result) => {
+            if (result.value) {
+                $.post("@Url.Action("Logout", "Login")", function (res) {
+                    if (res.status === "success") {
+                        LoadingShow();
+                        window.location.href = '@Url.Action("LogIn", "Login")';
+                    }
+                    else {
+                        alert('Error refresh');
+                    }
+                });
+            }
+        });
+    }
+</script>
