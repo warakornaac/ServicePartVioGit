@@ -143,47 +143,54 @@ namespace ServiceCatalog.Controllers
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-
                     string sql = @"SELECT Usr.UserType, Usr.Slmcod,
-                                          Ad.Department, Ad.Company,
-                                          Ad.FName, Ad.LName, Ad.mail,
-                                          Ad.Position, Ad.EmpID
-                                   FROM UsrTbl Usr
-                                   LEFT JOIN [LIP].[dbo].[v_ADUser] Ad 
-                                          ON Ad.LogInName = Usr.UserID
-                                   WHERE Usr.UserID = @inUser
-                                   AND [dbo].F_decrypt(Usr.[Password]) = @inPassword";
+                      Ad.Department, Ad.Company,
+                      Ad.FName, Ad.LName, Ad.mail,
+                      Ad.Position, Ad.EmpID
+               FROM UsrTbl Usr
+               LEFT JOIN [dbo].[v_ADUser] Ad 
+                      ON Ad.LogInName = Usr.UserID
+               WHERE Usr.UserID = @inUser
+               AND [dbo].F_decrypt(Usr.[Password]) = @inPassword";
 
                     using (SqlCommand cmd = new SqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@inUser", userTrim);
                         cmd.Parameters.AddWithValue("@inPassword", passTrim);
 
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        try
                         {
-                            if (reader.HasRows)
+                            using (SqlDataReader reader = cmd.ExecuteReader())
                             {
-                                while (reader.Read())
+                                if (reader.HasRows)
                                 {
-                                    this.Session["UserAD"] = "NO";
-                                    this.Session["UserID"] = userTrim;
-                                    this.Session["UserType"] = reader["UserType"].ToString();
-                                    this.Session["Department"] = reader["Department"].ToString();
-                                    this.Session["Company"] = reader["Company"].ToString();
-                                    this.Session["SLMCOD"] = reader["Slmcod"].ToString();
-                                    this.Session["FName"] = reader["FName"].ToString();
-                                    this.Session["LName"] = reader["LName"].ToString();
-                                    this.Session["Email"] = reader["mail"].ToString();
-                                    this.Session["Position"] = reader["Position"].ToString();
-                                    this.Session["EmpID"] = reader["EmpID"].ToString();
-                                    UserType = reader["UserType"].ToString();
+                                    while (reader.Read())
+                                    {
+                                        this.Session["UserAD"] = "NO";
+                                        this.Session["UserID"] = userTrim;
+                                        this.Session["UserType"] = reader["UserType"].ToString();
+                                        this.Session["Department"] = reader["Department"].ToString();
+                                        this.Session["Company"] = reader["Company"].ToString();
+                                        this.Session["SLMCOD"] = reader["Slmcod"].ToString();
+                                        this.Session["FName"] = reader["FName"].ToString();
+                                        this.Session["LName"] = reader["LName"].ToString();
+                                        this.Session["Email"] = reader["mail"].ToString();
+                                        this.Session["Position"] = reader["Position"].ToString();
+                                        this.Session["EmpID"] = reader["EmpID"].ToString();
+                                        UserType = reader["UserType"].ToString();
+                                    }
+                                }
+                                else
+                                {
+                                    ModelState.AddModelError("", "Login details are wrong.");
+                                    return View();
                                 }
                             }
-                            else
-                            {
-                                ModelState.AddModelError("", "Login details are wrong.");
-                                return View();
-                            }
+                        }
+                        catch (SqlException)
+                        {
+                            ModelState.AddModelError("", "Login details are wrong.");
+                            return View();
                         }
                     }
                 }
