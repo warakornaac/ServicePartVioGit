@@ -28,10 +28,11 @@
                             <tr>
                                 <th class="text-center">#</th>
                                 <th class="text-center">Stkcode</th>
-                                <th class="text-center">Stkdes</th>
+                                <th class="text-center">Stkdesc</th>
                                 <th class="text-center">SeqImage</th>
                                 <th class="text-center">Filename</th>
                                 <th class="text-center">Url</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -42,18 +43,62 @@
                                 {
                                     rowItem++;
                                     <tr>
-                                        <td><span>@rowItem</span></td>
+                                        <td class="text-center"><span>@rowItem</span></td>
                                         <td><span>@item.Stkcode</span></td>
                                         <td><span>@item.Stkdesc</span></td>
                                         <td class="text-center"><span>@item.SeqImage</span></td>
                                         <td><span>@item.Filename</span></td>
-                                        <td><span>@item.Url</span></td>
-                                        <td><span>Download</span></td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(item.Url))
+                                            {
+                                                <a href="@item.Url" target="_blank">@item.Url</a>
+                                            }
+                                        </td>
+                                        @*<td class="text-center">
+                                <a href="@Url.Action("DownloadImage", "ItemImages", new { url = item.Url, filename = item.Filename })"
+                                   class="btn btn-sm btn-primary">
+                                    <i class="bi bi-download"></i> Download
+                                </a>
+                            </td>*@
+                                        <td class="text-center">
+                                            @if (!string.IsNullOrEmpty(item.Url))
+                                            {
+                                                <button class="btn btn-sm btn-primary"
+                                                        onclick="previewImage('@item.Url', '@item.Filename', '@item.Stkcode')">
+                                                    <i class="bi bi-image"></i> Preview
+                                                </button>
+                                            }
+                                        </td>
                                     </tr>
                                 }
                             }
                         </tbody>
                     </table>
+                    
+                    <div class="modal fade" id="modalPreviewImage" tabindex="-1">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="modalImageTitle"></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <img id="modalImageSrc" src="" class="img-fluid" />
+                                </div>
+                                <div class="modal-footer">
+                                    <a id="modalImageLink" href="" target="_blank"
+                                       class="btn btn-success">
+                                        <i class="bi bi-box-arrow-up-right"></i>
+                                        Open Full Size (คลิกขวา Save)
+                                    </a>
+                                    <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,4 +159,11 @@
             }
         });
     });
+
+    function previewImage(url, filename, stkcode) {
+        $('#modalImageTitle').text(stkcode + ' - ' + filename);
+        $('#modalImageSrc').attr('src', url);
+        $('#modalImageLink').attr('href', url);
+        $('#modalPreviewImage').modal('show');
+    }
 </script>
