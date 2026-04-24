@@ -19,5 +19,8 @@ namespace ServiceCatalog.Models
         public int SeqImage { get; set; }
         public string Filename { get; set; }
         public string Url { get; set; }
+        public string Status { get; set; }
+        public string FilePath { get; set; }
+        public int RetryCount { get; set; }
     }
 }

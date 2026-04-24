@@ -1,26 +1,58 @@
 ﻿@{
     ViewBag.Title = "_ListProductImage";
-    var listView = ViewBag.ListProductImage;
+    var listView = ViewBag.ListProductImage as List<ServiceCatalog.Models.ProductImageViewModel>;
+    int totalCount = listView != null ? listView.Count : 0;
+
+    Func<string, string> GetStatusBadge = (status) =>
+    {
+        if (status == "SUCCESS") return "bg-success";
+        if (status == "FAILED") return "bg-danger";
+        if (status == "PROCESSING") return "bg-warning text-dark";
+        if (status == "QUEUE") return "bg-info";
+        return "bg-secondary";
+    };
 }
+
 <style>
     th.text-center {
         text-align: center !important;
     }
+
+    .img-preview-box {
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
+
 <div class="row">
     <div class="col-xl-12">
         <div class="card custom-card">
-            <div class="card-header" style="padding: 10px 20px;">
+
+            <div class="card-header">
                 <div class="d-flex align-items-center w-100">
                     <i class="fe fe-list"></i>
                     <div class="p-1">
-                        <p class="mb-0 fw-semibold fs-14 text-info"> @*@ViewBag.listSearchItemProduct.Count*@ Item </p>
+                        <p class="mb-0 fw-semibold fs-14 text-info">
+                            @totalCount Item
+                        </p>
                     </div>
-                    <div class="dropdown ms-auto">
-                        <button type="button" class="btn btn-warning btn-sm" onclick="exportItemProduct();" style="height: 35px;"><i class="bi bi-download"></i> Export Excel </button>
+
+                    <div class="ms-auto d-flex gap-2">
+                        <button id="btnSyncAll" class="btn btn-success btn-sm"
+                                onclick="syncAllImages()">
+                            <i class="bi bi-cloud-upload"></i> Sync All to Server
+                        </button>
+
+                        <button id="btnDownloadZip" class="btn btn-primary btn-sm"
+                                disabled onclick="downloadZip()">
+                            <i class="bi bi-file-earmark-zip"></i> Download all to Zipfile
+                        </button>
                     </div>
                 </div>
             </div>
+
             <div class="card-body pt-0 p-2">
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered" id="tableListProduct">
@@ -31,7 +63,7 @@
                                 <th class="text-center">Stkdesc</th>
                                 <th class="text-center">SeqImage</th>
                                 <th class="text-center">Filename</th>
-                                <th class="text-center">Url</th>
+                                <th class="text-center">Status</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
@@ -42,128 +74,377 @@
                                 foreach (var item in listView)
                                 {
                                     rowItem++;
-                                    <tr>
-                                        <td class="text-center"><span>@rowItem</span></td>
-                                        <td><span>@item.Stkcode</span></td>
-                                        <td><span>@item.Stkdesc</span></td>
-                                        <td class="text-center"><span>@item.SeqImage</span></td>
-                                        <td><span>@item.Filename</span></td>
-                                        <td>
-                                            @if (!string.IsNullOrEmpty(item.Url))
-                                            {
-                                                <a href="@item.Url" target="_blank">@item.Url</a>
-                                            }
+                                    <tr data-stkcode="@item.Stkcode"
+                                        data-seqimage="@item.SeqImage"
+                                        data-url="@item.Url"
+                                        data-filename="@item.Filename"
+                                        data-status="@item.Status">
+                                        <td class="text-center">@rowItem</td>
+                                        <td>@item.Stkcode</td>
+                                        <td>@item.Stkdesc</td>
+                                        <td class="text-center">@item.SeqImage</td>
+                                        <td>@item.Filename</td>
+                                        <td class="text-center col-status">
+                                            <span class="badge @GetStatusBadge(item.Status)">
+                                                @(string.IsNullOrEmpty(item.Status) ? "PENDING" : item.Status)
+                                            </span>
                                         </td>
-                                        @*<td class="text-center">
-                                <a href="@Url.Action("DownloadImage", "ItemImages", new { url = item.Url, filename = item.Filename })"
-                                   class="btn btn-sm btn-primary">
-                                    <i class="bi bi-download"></i> Download
-                                </a>
-                            </td>*@
                                         <td class="text-center">
-                                            @if (!string.IsNullOrEmpty(item.Url))
-                                            {
-                                                <button class="btn btn-sm btn-primary"
-                                                        onclick="previewImage('@item.Url', '@item.Filename', '@item.Stkcode')">
-                                                    <i class="bi bi-image"></i> Preview
-                                                </button>
-                                            }
+                                            <button class="btn btn-sm btn-info btn-preview"
+                                                    title="ดูรูปภาพ">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 }
                             }
                         </tbody>
                     </table>
-                    
-                    <div class="modal fade" id="modalPreviewImage" tabindex="-1">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalImageTitle"></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body text-center">
-                                    <img id="modalImageSrc" src="" class="img-fluid" />
-                                </div>
-                                <div class="modal-footer">
-                                    <a id="modalImageLink" href="" target="_blank"
-                                       class="btn btn-success">
-                                        <i class="bi bi-box-arrow-up-right"></i>
-                                        Open Full Size (คลิกขวา Save)
-                                    </a>
-                                    <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">
-                                        Close
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="modalPreviewImage" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalImageTitle">รูปภาพ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body text-center">
+                <div class="img-preview-box">
+                    <img id="modalImageSrc" src="" class="img-fluid rounded"
+                         style="max-height:400px" />
+                </div>
+                <div class="mt-2">
+                    <span id="modalStatusBadge" class="badge fs-13"></span>
+                </div>
+            </div>
+
+            <div class="modal-footer" id="modalFooterButtons">
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script>
-    //export excel
-    function exportItemProduct() {
-        Swal.fire({
-            title: 'Do you confirm export',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#00a65a',
-            cancelButtonColor: '#d33',
-            confirmButtonText: '<i class="fa fa-check"></i> Yes',
-            cancelButtonText: '<i class="fa fa-times"></i> No',
-            allowOutsideClick: false,
-            focusConfirm: false,
-        }).then((result) => {
-            if (result.value) {
-                LoadingShow();
-                LoadingHide();
-                var txtProductCode = $('#txtProductCode option:selected').val();
-                var txtSec = $('#txtSec option:selected').val();
-                var txtStockGroup = $('#txtStockGroup option:selected').val();
-                var txtCompany = $('#txtCompany option:selected').val();
-                var txtStockCode = $("#stockCodeSearch").val();
-                var txtStatusId = $("#txtStatusId option:selected").val();
-                var txtCalldate = $("#txtCalldate").val();
+(function () {
 
-                // query string
-                var query =
-                    '?stkcode=' + encodeURIComponent(txtStockCode) +
-                    '&status=' + encodeURIComponent(txtStatusId) +
-                    '&dateCall=' + encodeURIComponent(txtCalldate) +
-                    '&company=' + encodeURIComponent(txtCompany) +
-                    '&prodCode=' + encodeURIComponent(txtProductCode) +
-                    '&sec=' + encodeURIComponent(txtSec) +
-                    '&stockGroup=' + encodeURIComponent(txtStockGroup);
+    // ── เก็บ context ปัจจุบันของ Modal ──────────────────────────
+    var _current = {};
 
-                window.location.href = 'ItemProduct/ExportProductItem' + query;
-            }
-        });
+    // ── 1. เปิด Modal (ปุ่ม eye แต่ละ row) ─────────────────────
+    $(document).on('click', '.btn-preview', function () {
+        var row      = $(this).closest('tr');
+        _current = {
+            stkcode  : row.data('stkcode'),
+            seqImage : row.data('seqimage'),
+            url      : row.data('url'),
+            filename : row.data('filename'),
+            status   : row.data('status') || 'PENDING',
+            $row     : row
+        };
+
+        // Title
+        $('#modalImageTitle').text(_current.stkcode + ' — Seq: ' + _current.seqImage);
+
+        // แสดงรูปจาก URL เดิมก่อน (ใช้ preview)
+        $('#modalImageSrc').attr('src', _current.url);
+
+        // Status badge
+        renderModalStatus(_current.status);
+
+        // Footer buttons
+        renderModalButtons(_current.status);
+
+        $('#modalPreviewImage').modal('show');
+    });
+
+    // ── 2. Render Status Badge ────────────────────────────────────
+    function renderModalStatus(status) {
+        var badgeClass = {
+            'SUCCESS'    : 'bg-success',
+            'FAILED'     : 'bg-danger',
+            'PROCESSING' : 'bg-warning text-dark',
+            'QUEUE'      : 'bg-info',
+            'PENDING'    : 'bg-secondary'
+        }[status] || 'bg-secondary';
+
+        $('#modalStatusBadge')
+            .removeClass()
+            .addClass('badge fs-13 ' + badgeClass)
+            .text(status || 'PENDING');
     }
 
-    $(document).ready(function () {
-        $('#tableListProduct').dataTable({
-            paging: true,
-            pageLength: 20,
-            lengthChange: false,
-            searching: false,
-            ordering: false,
-            //scrollY: 500,
-            language: {
-                info: "แสดง _START_ ถึง _END_ จากทั้งหมด _TOTAL_ ",
-                infoEmpty: "ไม่มีข้อมูลให้แสดง"
+    // ── 3. Render Footer Buttons ตาม Status ──────────────────────
+    function renderModalButtons(status) {
+        var footer = $('#modalFooterButtons');
+        footer.empty();
+
+        if (status === 'SUCCESS') {
+            // SUCCESS → แสดงแค่ Download, ปิด Sync
+            footer.append(
+                '<button class="btn btn-primary" id="btnModalDownload">' +
+                '<i class="bi bi-download"></i> Download Image</button>'
+            );
+            footer.append(
+                '<button class="btn btn-success" disabled title="Sync สำเร็จแล้ว">' +
+                '<i class="bi bi-cloud-check"></i> Synced</button>'
+            );
+        } else {
+            // ยังไม่ SUCCESS → แสดง Sync, ซ่อน Download
+            footer.append(
+                '<button class="btn btn-success" id="btnModalSync">' +
+                '<i class="bi bi-cloud-upload"></i> Sync to Server</button>'
+            );
+            footer.append(
+                '<button class="btn btn-primary" disabled title="กรุณา Sync ก่อน Download">' +
+                '<i class="bi bi-download"></i> Download Image</button>'
+            );
+        }
+
+        footer.append(
+            '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>'
+        );
+    }
+
+    // ── 4. Sync to Server (ปุ่มใน Modal) ─────────────────────────
+    $(document).on('click', '#btnModalSync', function () {
+        var btn = $(this);
+        btn.prop('disabled', true)
+           .html('<i class="bi bi-hourglass-split"></i> Syncing…');
+
+        // อัป Status badge ใน Modal
+        renderModalStatus('PROCESSING');
+
+        $.ajax({
+            url  : '@Url.Action("SyncOne", "ItemImages")',
+            type : 'POST',
+            data : { stkcode: _current.stkcode, seqImage: _current.seqImage },
+            success: function (res) {
+                if (res.success) {
+                    // อัป _current
+                    _current.status = 'SUCCESS';
+
+                    // อัป badge + footer
+                    renderModalStatus('SUCCESS');
+                    renderModalButtons('SUCCESS');
+
+                    // อัป row ใน table
+                    _current.$row.data('status', 'SUCCESS');
+                    _current.$row.find('.col-status').html(
+                        '<span class="badge bg-success">SUCCESS</span>');
+
+                    // Enable ปุ่ม Download Zip (ถ้า SyncAll)
+                    checkEnableZipButton();
+
+                    Swal.fire({
+                        icon: 'success', title: 'สำเร็จ',
+                        text: 'Sync เสร็จแล้ว: ' + res.message,
+                        timer: 2000, showConfirmButton: false
+                    });
+                } else {
+                    renderModalStatus('FAILED');
+                    renderModalButtons('FAILED');
+                    _current.$row.find('.col-status').html(
+                        '<span class="badge bg-danger">FAILED</span>');
+                    Swal.fire('ผิดพลาด', res.message, 'error');
+                }
+            },
+            error: function () {
+                renderModalStatus('FAILED');
+                renderModalButtons('FAILED');
+                Swal.fire('ผิดพลาด', 'Server error', 'error');
             }
         });
     });
 
-    function previewImage(url, filename, stkcode) {
-        $('#modalImageTitle').text(stkcode + ' - ' + filename);
-        $('#modalImageSrc').attr('src', url);
-        $('#modalImageLink').attr('href', url);
-        $('#modalPreviewImage').modal('show');
+    // ── 5. Download Image (ปุ่มใน Modal) ─────────────────────────
+    $(document).on('click', '#btnModalDownload', function () {
+        window.location.href =
+            '@Url.Action("DownloadFromServer", "ItemImages")' +
+            '?stkcode='  + encodeURIComponent(_current.stkcode) +
+            '&seqImage=' + _current.seqImage;
+    });
+
+    // ── Sync All: รวบรวม keys จาก table แล้วส่งไป Controller ──────
+    window.syncAllImages = function () {
+        // รวบรวม stkcode + seqImage จากทุก row ใน table
+        var items = [];
+        $('#tableListProduct tbody tr').each(function () {
+            var row = $(this);
+            items.push({
+                Stkcode  : row.data('stkcode').toString(),
+                SeqImage : parseInt(row.data('seqimage'))
+            });
+        });
+
+        if (items.length === 0) {
+            Swal.fire('แจ้งเตือน', 'ไม่มีรายการใน Table', 'info');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Sync ทั้งหมด ' + items.length + ' รายการ?',
+            text : 'ระบบจะโหลดรูปลง Server ทีละรายการ อาจใช้เวลาสักครู่',
+            icon : 'question',
+            showCancelButton : true,
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText : 'ยกเลิก'
+        }).then(function (result) {
+            if (!result.value) return;
+
+            var btn = $('#btnSyncAll');
+            btn.prop('disabled', true)
+               .html('<i class="bi bi-hourglass-split"></i> กำลัง Sync…');
+
+            // แสดง progress
+            Swal.fire({
+                title            : 'กำลัง Sync รูปภาพ…',
+                text             : 'กรุณารอสักครู่ (' + items.length + ' รายการ)',
+                allowOutsideClick: false,
+                didOpen          : function () { Swal.showLoading(); }
+            });
+
+            $.ajax({
+                url        : '@Url.Action("SyncAll", "ItemImages")',
+                type       : 'POST',
+                contentType: 'application/json',
+                data       : JSON.stringify(items),  // ส่งเป็น JSON array
+                success: function (res) {
+                    Swal.close();
+
+                    if (res.success) {
+                        // อัป Status ทุก row เป็น SUCCESS
+                        $('#tableListProduct tbody tr').each(function () {
+                            $(this).data('status', 'SUCCESS');
+                            $(this).find('.col-status').html(
+                                '<span class="badge bg-success">SUCCESS</span>');
+                        });
+
+                        // Enable ปุ่ม Download Zip
+                        $('#btnDownloadZip').prop('disabled', false);
+
+                        Swal.fire({
+                            icon : 'success',
+                            title: 'Sync สำเร็จ',
+                            text : res.message
+                        });
+                    } else {
+                        Swal.fire({
+                            icon : 'warning',
+                            title: 'Sync เสร็จสิ้น (มีบางรายการล้มเหลว)',
+                            text : res.message
+                        });
+
+                        // Reload table เพื่อดู status จริงจาก DB
+                        getItemProduct();
+                    }
+                },
+                error: function () {
+                    Swal.close();
+                    Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อ Server ได้', 'error');
+                },
+                complete: function () {
+                    btn.prop('disabled', false)
+                       .html('<i class="bi bi-cloud-upload"></i> Sync All to Server');
+                }
+            });
+        });
+    };
+
+    // ── 7. Download Zip ───────────────────────────────────────────
+    window.downloadZip = function () {
+    // รวบรวม Stkcode ทุก row ที่แสดงใน table (unique)
+    var stkcodes = [];
+    var seen     = {};
+
+    $('#tableListProduct tbody tr').each(function () {
+        var stkcode = $(this).data('stkcode').toString();
+        if (!seen[stkcode]) {
+            seen[stkcode] = true;
+            stkcodes.push(stkcode);
+        }
+    });
+
+    if (stkcodes.length === 0) {
+        Swal.fire('แจ้งเตือน', 'ไม่มีรายการใน List', 'info');
+        return;
     }
+
+    Swal.fire({
+        title            : 'กำลังเตรียมไฟล์ Zip…',
+        text             : stkcodes.length + ' Stkcode',
+        allowOutsideClick: false,
+        didOpen          : function () { Swal.showLoading(); }
+    });
+
+    $.ajax({
+        url        : '@Url.Action("DownloadAllZip", "ItemImages")',
+        type       : 'POST',
+        contentType: 'application/json',
+        data       : JSON.stringify(stkcodes),
+        xhrFields  : { responseType: 'blob' },  // รับเป็น binary
+        success: function (blob, status, xhr) {
+            Swal.close();
+
+            // ดึงชื่อไฟล์จาก header
+            var filename = 'Images.zip';
+            var disposition = xhr.getResponseHeader('Content-Disposition');
+            if (disposition) {
+                var match = disposition.match(/filename=(.+)/);
+                if (match) filename = match[1];
+            }
+
+            // สร้าง link download
+            var url  = window.URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href     = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        },
+        error: function (xhr) {
+            Swal.close();
+            var msg = xhr.status === 404
+                ? 'ไม่พบไฟล์รูปภาพ กรุณากด Sync All ก่อน'
+                : 'เกิดข้อผิดพลาด: ' + xhr.statusText;
+            Swal.fire('ผิดพลาด', msg, 'error');
+        }
+    });
+};
+    // ── 8. Helper: เช็คว่าควร Enable ปุ่ม Zip ไหม ───────────────
+    function checkEnableZipButton() {
+        var hasSuccess = $('#tableListProduct tbody tr').toArray().some(function (tr) {
+            return $(tr).data('status') === 'SUCCESS';
+        });
+        if (hasSuccess) $('#btnDownloadZip').prop('disabled', false);
+    }
+
+    // ── 9. DataTable Init ─────────────────────────────────────────
+    $(document).ready(function () {
+        $('#tableListProduct').dataTable({
+            paging      : true,
+            pageLength  : 20,
+            lengthChange: false,
+            searching   : false,
+            ordering    : false,
+            language: {
+                info     : 'แสดง _START_ ถึง _END_ จากทั้งหมด _TOTAL_',
+                infoEmpty: 'ไม่มีข้อมูลให้แสดง'
+            }
+        });
+
+        // เช็คตอน load ว่ามี SUCCESS อยู่แล้วไหม
+        checkEnableZipButton();
+    });
+
+}());
 </script>
