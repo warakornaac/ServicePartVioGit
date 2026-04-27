@@ -360,66 +360,92 @@
 
     // ── 7. Download Zip ───────────────────────────────────────────
     window.downloadZip = function () {
-    // รวบรวม Stkcode ทุก row ที่แสดงใน table (unique)
-    var stkcodes = [];
-    var seen     = {};
+        var stkcodes = [];
+        var seen     = {};
 
-    $('#tableListProduct tbody tr').each(function () {
-        var stkcode = $(this).data('stkcode').toString();
-        if (!seen[stkcode]) {
-            seen[stkcode] = true;
-            stkcodes.push(stkcode);
-        }
-    });
-
-    if (stkcodes.length === 0) {
-        Swal.fire('แจ้งเตือน', 'ไม่มีรายการใน List', 'info');
-        return;
-    }
-
-    Swal.fire({
-        title            : 'กำลังเตรียมไฟล์ Zip…',
-        text             : stkcodes.length + ' Stkcode',
-        allowOutsideClick: false,
-        didOpen          : function () { Swal.showLoading(); }
-    });
-
-    $.ajax({
-        url        : '@Url.Action("DownloadAllZip", "ItemImages")',
-        type       : 'POST',
-        contentType: 'application/json',
-        data       : JSON.stringify(stkcodes),
-        xhrFields  : { responseType: 'blob' },  // รับเป็น binary
-        success: function (blob, status, xhr) {
-            Swal.close();
-
-            // ดึงชื่อไฟล์จาก header
-            var filename = 'Images.zip';
-            var disposition = xhr.getResponseHeader('Content-Disposition');
-            if (disposition) {
-                var match = disposition.match(/filename=(.+)/);
-                if (match) filename = match[1];
+        $('#tableListProduct tbody tr').each(function () {
+            var stkcode = $(this).data('stkcode').toString();
+            if (!seen[stkcode]) {
+                seen[stkcode] = true;
+                stkcodes.push(stkcode);
             }
+        });
 
-            // สร้าง link download
-            var url  = window.URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.href     = url;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-        },
-        error: function (xhr) {
-            Swal.close();
-            var msg = xhr.status === 404
-                ? 'ไม่พบไฟล์รูปภาพ กรุณากด Sync All ก่อน'
-                : 'เกิดข้อผิดพลาด: ' + xhr.statusText;
-            Swal.fire('ผิดพลาด', msg, 'error');
+        if (stkcodes.length === 0) {
+            Swal.fire('แจ้งเตือน', 'ไม่มีรายการใน List', 'info');
+            return;
         }
-    });
-};
+
+        Swal.fire({
+            title            : 'กำลังเตรียมไฟล์ Zip…',
+            text             : stkcodes.length + ' Stkcode',
+            allowOutsideClick: false,
+            didOpen          : function () { Swal.showLoading(); }
+        });
+
+        // ── ใช้ XMLHttpRequest แทน $.ajax เพื่อรับ binary ได้ถูกต้อง ──
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '@Url.Action("DownloadAllZip", "ItemImages")', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.responseType = 'blob'; // ← รับเป็น binary blob
+
+        xhr.onload = function () {
+            Swal.close();
+
+            if (xhr.status === 200) {
+                var contentType = xhr.getResponseHeader('Content-Type') || '';
+
+                if (contentType.indexOf('application/zip') >= 0) {
+                    // ── สำเร็จ → download zip ──
+                    var blob     = xhr.response;
+                    var url      = window.URL.createObjectURL(blob);
+                    var link     = document.createElement('a');
+                    var zipName  = 'Images_' + new Date().toISOString()
+                                       .replace(/[-T:\.Z]/g, '').substring(0, 15) + '.zip';
+
+                    link.href     = url;
+                    link.download = zipName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                } else {
+                    // ── response เป็น JSON error ──
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        try {
+                            var json = JSON.parse(reader.result);
+                            Swal.fire('ผิดพลาด', json.message || reader.result, 'error');
+                        } catch (e) {
+                            Swal.fire('ผิดพลาด', reader.result, 'error');
+                        }
+                    };
+                    reader.readAsText(xhr.response);
+                }
+
+            } else {
+                // ── HTTP error ──
+                var reader = new FileReader();
+                reader.onload = function () {
+                    try {
+                        var json = JSON.parse(reader.result);
+                        Swal.fire('ผิดพลาด', json.message || 'HTTP ' + xhr.status, 'error');
+                    } catch (e) {
+                        Swal.fire('ผิดพลาด', 'HTTP ' + xhr.status + ': ' + reader.result, 'error');
+                    }
+                };
+                reader.readAsText(xhr.response);
+            }
+        };
+
+        xhr.onerror = function () {
+            Swal.close();
+            Swal.fire('ผิดพลาด', 'ไม่สามารถเชื่อมต่อ Server ได้', 'error');
+        };
+
+        xhr.send(JSON.stringify(stkcodes));
+    };
     // ── 8. Helper: เช็คว่าควร Enable ปุ่ม Zip ไหม ───────────────
     function checkEnableZipButton() {
         var hasSuccess = $('#tableListProduct tbody tr').toArray().some(function (tr) {

@@ -167,58 +167,113 @@ namespace ServiceCatalog.Controllers
         public ActionResult DownloadAllZip(List<string> stkcodes)
         {
             if (stkcodes == null || stkcodes.Count == 0)
-                return HttpNotFound("ไม่มีรายการ");
+                return Json(new { success = false, message = "ไม่มีรายการ Stkcode" });
+
+            string nasPath = ConfigurationManager.AppSettings["NasPath"];
+            string nasUser = ConfigurationManager.AppSettings["NasUser"];
+            string nasPassword = ConfigurationManager.AppSettings["NasPassword"];
+            string nasDomain = ConfigurationManager.AppSettings["NasDomain"] ?? ".";
 
             var files = new List<KeyValuePair<string, string>>();
-            // KeyValuePair<absolutePath, entryName>
-            // entryName = "Stkcode/filename.jpg" เพื่อให้ zip มี folder structure
+            var sb = new System.Text.StringBuilder();
 
-            foreach (var stkcode in stkcodes)
+            try
             {
-                // folder จริงบน server ~/Uploads/{Stkcode}/
-                string stkFolder = Server.MapPath(
-                    string.Format("~/Uploads/{0}/", stkcode));
-
-                if (!System.IO.Directory.Exists(stkFolder))
-                    continue;
-
-                // หยิบทุกไฟล์รูปใน folder นั้น
-                var imageFiles = System.IO.Directory.GetFiles(stkFolder);
-                foreach (var filePath in imageFiles)
+                using (new NasConnection(nasPath, nasUser, nasPassword, nasDomain))
                 {
-                    string fileName = System.IO.Path.GetFileName(filePath);
-                    // entryName มี folder ด้วย → Stkcode/filename.jpg
-                    string entryName = stkcode + "/" + fileName;
-                    files.Add(new KeyValuePair<string, string>(filePath, entryName));
-                }
-            }
+                    sb.AppendLine("NAS Connected OK");
 
-            if (files.Count == 0)
-                return HttpNotFound("ไม่พบไฟล์รูปภาพ กรุณา Sync ก่อน Download");
-
-            using (var ms = new System.IO.MemoryStream())
-            {
-                using (var zip = new System.IO.Compression.ZipArchive(
-                           ms, System.IO.Compression.ZipArchiveMode.Create, leaveOpen: true))
-                {
-                    foreach (var file in files)
+                    // ── ดึง FilePath จาก DB ──
+                    using (var conn = new SqlConnection(
+                        ConfigurationManager.ConnectionStrings["ServiceCatalogDB"]
+                            .ConnectionString))
                     {
-                        var entry = zip.CreateEntry(file.Value,
-                                    System.IO.Compression.CompressionLevel.Fastest);
+                        conn.Open();
 
-                        using (var entryStream = entry.Open())
-                        using (var fileStream = System.IO.File.OpenRead(file.Key))
+                        foreach (var stkcode in stkcodes)
                         {
-                            fileStream.CopyTo(entryStream);
+                            using (var cmd = new SqlCommand(@"
+                        SELECT Filename, FilePath
+                        FROM   Product_Image
+                        WHERE  Status   = 'SUCCESS'
+                          AND  FilePath IS NOT NULL
+                          AND  Stkcode  = @Stkcode", conn))
+                            {
+                                cmd.Parameters.AddWithValue("@Stkcode", stkcode);
+
+                                using (var reader = cmd.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        string filePath = reader["FilePath"].ToString();
+                                        string fileName = reader["Filename"].ToString();
+
+                                        sb.AppendLine("Check: " + filePath);
+
+                                        if (System.IO.File.Exists(filePath))
+                                        {
+                                            string entryName = stkcode + "/" + fileName;
+                                            files.Add(new KeyValuePair<string, string>(
+                                                filePath, entryName));
+                                            sb.AppendLine("  → OK");
+                                        }
+                                        else
+                                        {
+                                            sb.AppendLine("  → NOT FOUND");
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                }
 
-                ms.Position = 0;
-                byte[] zipBytes = ms.ToArray();
-                string zipName = string.Format("Images_{0:yyyyMMdd_HHmmss}.zip",
-                                  DateTime.Now);
-                return File(zipBytes, "application/zip", zipName);
+                    if (files.Count == 0)
+                        return Json(new
+                        {
+                            success = false,
+                            message = "ไม่พบไฟล์รูปภาพบน NAS\n\nLog:\n" + sb.ToString()
+                        });
+
+                    // ── สร้าง Zip ──
+                    var ms = new MemoryStream();
+                    using (var zip = new System.IO.Compression.ZipArchive(
+                               ms, System.IO.Compression.ZipArchiveMode.Create,
+                               leaveOpen: true))
+                    {
+                        foreach (var file in files)
+                        {
+                            var entry = zip.CreateEntry(
+                                file.Value,
+                                System.IO.Compression.CompressionLevel.Fastest);
+
+                            using (var entryStream = entry.Open())
+                            using (var fileStream = System.IO.File.OpenRead(file.Key))
+                            {
+                                fileStream.CopyTo(entryStream);
+                            }
+                        }
+                    }
+
+                    ms.Position = 0;
+                    byte[] zipBytes = ms.ToArray();
+                    ms.Dispose();
+
+                    string zipName = string.Format(
+                        "Images_{0:yyyyMMdd_HHmmss}.zip", DateTime.Now);
+
+                    return base.File(zipBytes, "application/zip", zipName);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error: " + ex.Message +
+                              (ex.InnerException != null
+                                  ? " | " + ex.InnerException.Message : "") +
+                              "\n\nLog:\n" + sb.ToString()
+                });
             }
         }
 
@@ -257,5 +312,55 @@ namespace ServiceCatalog.Controllers
             return false;
         }
 
+        [HttpGet]
+        public ActionResult TestNas()
+        {
+            var sb = new System.Text.StringBuilder();
+            string nasPath = ConfigurationManager.AppSettings["NasPath"];
+            string nasUser = ConfigurationManager.AppSettings["NasUser"];
+            string nasPassword = ConfigurationManager.AppSettings["NasPassword"];
+            string nasDomain = ConfigurationManager.AppSettings["NasDomain"] ?? ".";
+
+            sb.AppendLine("NasPath:   " + nasPath);
+            sb.AppendLine("NasUser:   " + nasUser);
+            sb.AppendLine("NasDomain: " + nasDomain);
+            sb.AppendLine("---");
+
+            try
+            {
+                using (new NasConnection(nasPath, nasUser, nasPassword, nasDomain))
+                {
+                    sb.AppendLine("✅ Impersonation OK");
+                    sb.AppendLine("Current user: " +
+                        System.Security.Principal.WindowsIdentity.GetCurrent().Name);
+
+                    if (Directory.Exists(nasPath))
+                        sb.AppendLine("✅ NAS Path exists");
+                    else
+                        sb.AppendLine("❌ NAS Path NOT found");
+
+                    // Write test
+                    string testFile = Path.Combine(nasPath, "_test_.txt");
+                    try
+                    {
+                        System.IO.File.WriteAllText(testFile, "ok");
+                        System.IO.File.Delete(testFile);
+                        sb.AppendLine("✅ Write permission OK");
+                    }
+                    catch (Exception ex)
+                    {
+                        sb.AppendLine("❌ Write FAILED: " + ex.Message);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                sb.AppendLine("❌ FAILED: " + ex.Message);
+                if (ex.InnerException != null)
+                    sb.AppendLine("   Inner: " + ex.InnerException.Message);
+            }
+
+            return Content(sb.ToString(), "text/plain; charset=utf-8");
+        }
     }
 }
