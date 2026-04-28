@@ -153,13 +153,32 @@ namespace ServiceCatalog.Controllers
             if (string.IsNullOrWhiteSpace(filePath))
                 return HttpNotFound("ยังไม่มีไฟล์บน Server กรุณา Sync ก่อน");
 
-            string absolutePath = Server.MapPath(filePath);
-            if (!System.IO.File.Exists(absolutePath))
-                return HttpNotFound("ไฟล์ถูกลบออกจาก Server กรุณา Sync ใหม่");
+            string nasUser = ConfigurationManager.AppSettings["NasUser"];
+            string nasPassword = ConfigurationManager.AppSettings["NasPassword"];
+            string nasDomain = ConfigurationManager.AppSettings["NasDomain"] ?? ".";
+            string nasPath = ConfigurationManager.AppSettings["NasPath"];
 
-            string filename = System.IO.Path.GetFileName(absolutePath);
-            string mimeType = MimeMapping.GetMimeMapping(filename);
-            return File(absolutePath, mimeType, filename);
+            try
+            {
+                using (new NasConnection(nasPath, nasUser, nasPassword, nasDomain))
+                {
+                    // FilePath ใน DB เป็น UNC path เต็ม เช่น
+                    // \\172.28.17.202\...\CatalogImages\037.741\image.jpg
+                    if (!System.IO.File.Exists(filePath))
+                        return HttpNotFound("ไฟล์ถูกลบออกจาก NAS กรุณา Sync ใหม่");
+
+                    string filename = System.IO.Path.GetFileName(filePath);
+                    string mimeType = MimeMapping.GetMimeMapping(filename);
+
+                    // อ่านไฟล์จาก NAS เป็น byte แล้วส่งกลับ
+                    byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
+                    return File(fileBytes, mimeType, filename);
+                }
+            }
+            catch (Exception ex)
+            {
+                return HttpNotFound("เชื่อมต่อ NAS ไม่ได้: " + ex.Message);
+            }
         }
 
         // ── DownloadAllZip ──────────────────────────────────────────────
