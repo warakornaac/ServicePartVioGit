@@ -1,0 +1,87 @@
+﻿@using ServiceCatalog.Models;
+
+<input type="hidden" id="hdnTotal" value="@ViewBag.countRowImport" />
+<input type="hidden" id="hdnSuccess" value="@ViewBag.countStatusSuccess" />
+<input type="hidden" id="hdnFail" value="@ViewBag.countStatusFail" />
+
+<div class="col-xl-12">
+    <div class="card custom-card">
+        <div class="card-header" style="padding: 10px 20px;">
+            <div class="d-flex align-items-center w-100">
+                <i class="fe fe-list"></i>
+                <div class="p-1">
+                    <p class="mb-0 fw-semibold fs-14 text-info">
+                        @ViewBag.countRowImport Records
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="card-body pt-0 p-2">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered"
+                       id="tableListProduct" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Stkcode</th>
+                            <th>OemNumber</th>
+                            <th>MakerName</th>
+                            <th>InsertBy</th>
+                            <th>InsertDate</th>
+                            <th>UpdateDate</th>
+                            <th>Status</th>
+                            <th>MessageImport</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.listOem != null)
+                        {
+                            int no = 1;
+                            foreach (var item in ViewBag.listOem
+                                     as List<StoreImportOEUpload>)
+                            {
+                                <tr class="@(item.StatusImport == "N" ? "table-danger" : "")">
+                                    <td>@no</td>
+                                    <td>@item.Stkcode</td>
+                                    <td>@item.OemNumber</td>
+                                    <td>@item.MakerName</td>
+                                    <td>@item.InsertedBy</td>
+                                    <td>@item.InsertedDate</td>
+                                    <td>@item.UpdatedDate</td>
+                                    <td>
+                                        @if (item.StatusImport == "Y" && !string.IsNullOrEmpty(item.ErrorImport))
+                                        {
+                                            <span class="badge bg-warning text-dark"
+                                                  title="@item.ErrorImport">
+                                                Success
+                                            </span>
+                                        }
+                                        else if (item.StatusImport == "Y")
+                                        {
+                                            <span class="badge bg-success">Success</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger"
+                                                  title="@item.ErrorImport">Fail</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.ErrorImport))
+                                        {
+                                            <span class="@(item.StatusImport == "Y" ? "text-warning" : "text-danger")">
+                                                @item.ErrorImport
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                                no++;
+                            }
+                        }
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -10,6 +10,17 @@
                 <span class="side-menu__label">Dashboard</span>
             </a>
         </li>
+
+        <li class="slide__category"><span class="category-name">CATALOG</span></li>
+        <!-- End::slide__category -->
+        <!-- Start::slide -->
+        @*<li class="slide">
+            <a href="@Url.Action("Index","TruAutoparts")" class="side-menu__item">
+                <i class="fe fe-shopping-cart side-menu__icon"></i>
+                <span class="side-menu__label"> TRU Autoparts </span>
+            </a>
+        </li>*@
+
         <li class="slide__category"><span class="category-name">VIO DATA</span></li>
         <li class="slide">
             <a href="@Url.Action("Index","UpLoadDataVIO")" class="side-menu__item">
@@ -59,6 +70,25 @@
             <a href="@Url.Action("ManagementPart","PartSpecification")" class="side-menu__item">
                 <i class="fe fe-settings side-menu__icon"></i>
                 <span class="side-menu__label">Part Spec Maintenance</span>
+            </a>
+        </li>
+        <li class="slide__category"><span class="category-name">UPLOAD FILES EXCEL</span></li>
+        <li class="slide">
+            <a href="@Url.Action("LinkageUpload","UploadFileExcel")" class="side-menu__item">
+                <i class="fe fe-settings side-menu__icon"></i>
+                <span class="side-menu__label">Linkage Upload</span>
+            </a>
+        </li>
+        <li class="slide">
+            <a href="@Url.Action("CompetitorUpload","UploadFileExcel")" class="side-menu__item">
+                <i class="fe fe-settings side-menu__icon"></i>
+                <span class="side-menu__label">Competitor Upload</span>
+            </a>
+        </li>
+        <li class="slide">
+            <a href="@Url.Action("OEUpload","UploadFileExcel")" class="side-menu__item">
+                <i class="fe fe-settings side-menu__icon"></i>
+                <span class="side-menu__label">OE Upload</span>
             </a>
         </li>
         <li class="slide__category"><span class="category-name">ITEM LINKAGE</span></li>
