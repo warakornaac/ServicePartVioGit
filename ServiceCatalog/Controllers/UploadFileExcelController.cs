@@ -88,7 +88,7 @@ namespace ServiceCatalog.Controllers
 
                                 countRowImport++;
 
-                                using (SqlCommand cmdUpload = new SqlCommand("P_Upload_LinkageUpload_Excel", connection))
+                                using (SqlCommand cmdUpload = new SqlCommand("P_Upload_Linkage_Excel", connection))
                                 {
                                     cmdUpload.CommandType = CommandType.StoredProcedure;
                                     cmdUpload.Parameters.AddWithValue("@Stkcode", colNo);
@@ -246,7 +246,7 @@ namespace ServiceCatalog.Controllers
                                         //if (dReader.GetValue(2).ToString() != "")
                                         {
                                             // Using SQL Command to insert data into the database
-                                            using (SqlCommand cmdUpload = new SqlCommand("P_Upload_CompetitorUpload_Excel", Connection))
+                                            using (SqlCommand cmdUpload = new SqlCommand("P_Upload_Competitor_Excel", Connection))
                                             {
                                                 cmdUpload.Connection = Connection;
                                                 cmdUpload.CommandType = CommandType.StoredProcedure;
@@ -397,7 +397,7 @@ namespace ServiceCatalog.Controllers
                                         //if (dReader.GetValue(2).ToString() != "")
                                         {
                                             // Using SQL Command to insert data into the database
-                                            using (SqlCommand cmdUpload = new SqlCommand("P_Upload_OemUpload_Excel", Connection))
+                                            using (SqlCommand cmdUpload = new SqlCommand("P_Upload_Oem_Excel", Connection))
                                             {
                                                 cmdUpload.Connection = Connection;
                                                 cmdUpload.CommandType = CommandType.StoredProcedure;
