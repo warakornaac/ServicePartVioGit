@@ -11429,6 +11429,12 @@
     <Content Include="Views\PartSpecification\_ListPartCompetitor.cshtml" />
     <Content Include="Views\ApprovePM\Index.cshtml" />
     <Content Include="Views\ApprovePM\_WaitApproveList.cshtml" />
+    <Content Include="Views\IndexCallByItemManual.cshtml" />
+    <Content Include="Views\ApiProduct\IndexCallProductByTechdoc.cshtml" />
+    <Content Include="Views\ApiProduct\_listCallProductByTechdoc.cshtml" />
+    <Content Include="Views\Include\MenuDemoApi.cshtml" />
+    <Content Include="Views\Shared\_LayoutDemoApi.cshtml" />
+    <Content Include="Views\ApiProduct\IndexCart.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

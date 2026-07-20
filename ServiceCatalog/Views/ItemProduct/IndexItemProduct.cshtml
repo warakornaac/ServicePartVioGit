@@ -142,7 +142,7 @@
 
     //call api
     function getItemProduct () {
-        var txtPartNo = $("#stockCodeSearch").val();
+        var txtPartNo = $("#stockCodeSearch").val() || $("#txtStockCode").val();
         var txtStatusId = $("#txtStatusId option:selected").val();
         var txtCalldate = $("#txtCalldate").val();
         var company = $('#txtCompany option:selected').val();

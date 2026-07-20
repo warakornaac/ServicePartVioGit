@@ -8,8 +8,9 @@ namespace ServiceCatalog.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        public ActionResult Index(string env)
         {
+            Session["ENV"] = (env ?? "prod").Trim().ToLower();
             return View();
         }
 

@@ -132,7 +132,25 @@
             if (result.value) {
                 LoadingShow();
                 LoadingHide();
-                window.location.href = '/ItemProduct/ExportProductItem';
+                var txtProductCode = $('#txtProductCode option:selected').val();
+                var txtSec = $('#txtSec option:selected').val();
+                var txtStockGroup = $('#txtStockGroup option:selected').val();
+                var txtCompany = $('#txtCompany option:selected').val();
+                var txtStockCode = $("#stockCodeSearch").val();
+                var txtStatusId = $("#txtStatusId option:selected").val();
+                var txtCalldate = $("#txtCalldate").val();
+
+                // query string
+                var query =
+                    '?stkcode=' + encodeURIComponent(txtStockCode) +
+                    '&status=' + encodeURIComponent(txtStatusId) +
+                    '&dateCall=' + encodeURIComponent(txtCalldate) +
+                    '&company=' + encodeURIComponent(txtCompany) +
+                    '&prodCode=' + encodeURIComponent(txtProductCode) +
+                    '&sec=' + encodeURIComponent(txtSec) +
+                    '&stockGroup=' + encodeURIComponent(txtStockGroup);
+
+                window.location.href = 'ItemProduct/ExportProductItem' + query;
             }
         });
     }

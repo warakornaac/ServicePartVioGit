@@ -906,6 +906,221 @@ namespace ServiceCatalog.Controllers
             Connection.Close();
             return Json(ListProductApiCount, JsonRequestBehavior.AllowGet);
         }
+        public ActionResult CallProductByTechdoc()
+        {
+            List<SelectListItem> listBrandMaster = new List<SelectListItem>();
+
+            using (SqlConnection connection = new SqlConnection(ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString))
+            {
+                connection.Open();
+                var command = new SqlCommand("P_Search_Brand", connection);
+                command.CommandType = CommandType.StoredProcedure;
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    listBrandMaster.Add(new SelectListItem
+                    {
+                        Value = reader["BrandId"].ToString(),
+                        Text = $"{reader["BrandId"]}/{reader["BrandName"]}"
+                    });
+                }
+            }
+            @ViewBag.listBrand = listBrandMaster;
+            return View("IndexCallProductByTechdoc", new
+            {
+                @ViewBag.listBrand
+            });
+        }
+        public async Task<ActionResult> getArticlesByPartnoByTechdoc(string PartNo, int BrandId)
+        {
+            var url = "https://mst.aac.co.th/APIService/Post/Articles";
+            //var url = "https://localhost:44361/Post/Articles";
+            string status = string.Empty;
+            string dataResponse = string.Empty;
+            var post = new
+            {
+                Partno = PartNo,
+                SupplierId = BrandId,
+            };
+            try
+            {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+                var handler = new HttpClientHandler();
+                var client = new HttpClient(handler);
+                string jsonContent = JsonConvert.SerializeObject(post);
+                HttpContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = client.PostAsync(url, content).GetAwaiter().GetResult();
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    dataResponse = responseContent;
+                    status = response.StatusCode.ToString();
+                }
+                else
+                {
+                    status = response.StatusCode.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                dataResponse = ex.Message;
+            }
+            JObject jsonResponse = JObject.Parse(dataResponse);
+            var articleIdToken = jsonResponse["ArticleId"];
+            var articleNumberToken = jsonResponse["ArticleNumber"];
+            var additionalDescriptionsToken = jsonResponse["AdditionalDescriptions"];
+            var articleStatusDescriptionToken = jsonResponse["ArticleStatusDescription"];
+            var quantityPerPackageToken = jsonResponse["QuantityPerPackage"];
+            var mfrNamesToken = jsonResponse["MfrNames"];
+
+            var articleId = articleIdToken != null && articleIdToken.Type != JTokenType.Null
+                ? articleIdToken.ToObject<List<string>>()
+                : null;
+            var articleNumber = articleNumberToken != null && articleNumberToken.Type != JTokenType.Null
+                ? articleNumberToken.ToObject<List<string>>()
+                : null;
+            var additionalDescriptions = additionalDescriptionsToken != null && additionalDescriptionsToken.Type != JTokenType.Null
+                ? additionalDescriptionsToken.ToObject<List<string>>()
+                : null;
+            var articleStatusDescription = articleStatusDescriptionToken != null && articleStatusDescriptionToken.Type != JTokenType.Null
+                ? articleStatusDescriptionToken.ToObject<List<string>>()
+                : null;
+            var quantityPerPackage = quantityPerPackageToken != null && quantityPerPackageToken.Type != JTokenType.Null
+               ? quantityPerPackageToken.ToObject<List<string>>()
+               : null;
+            var mfrNames = mfrNamesToken != null && mfrNamesToken.Type != JTokenType.Null
+                ? mfrNamesToken.ToObject<List<string>>()
+                : null;
+            @ViewBag.articleId = articleId;
+            @ViewBag.articleNumber = articleNumber;
+            @ViewBag.additionalDescriptions = additionalDescriptions;
+            @ViewBag.articleStatusDescription = articleStatusDescription;
+            @ViewBag.quantityPerPackage = quantityPerPackage; //จำนวน
+            @ViewBag.mfrName = mfrNames;
+            ArticleDataModels articleResponse = JsonConvert.DeserializeObject<ArticleDataModels>(dataResponse);
+            @ViewBag.dataResponse = articleResponse;
+            //Competitor - คู่แข่ง
+            //Product_Competitor
+            if (!string.IsNullOrEmpty(PartNo) && BrandId > 0)
+            {
+                var dataCompetitor = await getArticlesPartNumberNearby(PartNo, BrandId);
+                if (dataCompetitor == null || dataCompetitor == null)
+                {
+                    ViewBag.dataCompetitor = new List<PartNumberNearbyData>();
+                }
+                else
+                {
+                    @ViewBag.dataCompetitor = dataCompetitor.PartNumberNearby;
+                }
+            }
+            //KType
+            //Product_Linkage
+            if (articleId?.Count > 0 && !string.IsNullOrEmpty(articleId[0]))
+            {
+                var dataLinkage = await GetLinkageByArticleId(articleId[0]);
+                if (dataLinkage == null || dataLinkage.LinkageDetails == null)
+                {
+                    ViewBag.dataLinkage = new List<LinkageDetails>();
+                }
+                else
+                {
+                    @ViewBag.dataLinkage = dataLinkage.LinkageDetails;
+                }
+            }
+            //Get item by mobile
+            if (!string.IsNullOrEmpty(PartNo))
+            {
+                var dataProductByMobile = await GetProductDetailByMobile("110Z0001O", PartNo, "TAC");
+                if (dataProductByMobile == null || dataProductByMobile == null)
+                {
+                    ViewBag.dataProductByMobile = new List<ListProductDetailByMobile>();
+                }
+                else
+                {
+                    @ViewBag.dataProductByMobile = dataProductByMobile;
+                }
+            }
+            return PartialView("_listCallProductByTechdoc", new
+            {
+                @ViewBag.articleId,
+                @ViewBag.articleNumber,
+                @ViewBag.additionalDescriptions,
+                @ViewBag.articleStatusDescription,
+                @ViewBag.mfrName,
+                @ViewBag.dataResponse,
+                @ViewBag.dataCompetitor,
+                @ViewBag.dataLinkage,
+                @ViewBag.dataProductByMobile
+            });
+        }
+        //get detail item by mobileOrder
+        public async Task<List<ListProductDetailByMobile>> GetProductDetailByMobile(string cusCode, string stkCode, string company)
+        {
+            List<ListProductDetailByMobile> list = new List<ListProductDetailByMobile>();
+
+            var connectionString = ConfigurationManager.ConnectionStrings["MobileOrderDB"].ConnectionString;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new SqlCommand("P_Search_Pricelist_ECatalog", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.AddWithValue("@SaleCode", "");
+                    command.Parameters.AddWithValue("@User", "");
+                    command.Parameters.AddWithValue("@Customer", cusCode);
+                    command.Parameters.AddWithValue("@Prod", "(ALL)");
+                    command.Parameters.AddWithValue("@StockGroup", "(ALL)");
+                    command.Parameters.AddWithValue("@StockCode", stkCode);
+                    command.Parameters.AddWithValue("@Company", company);
+
+                    using (var dr = await command.ExecuteReaderAsync())
+                    {
+                        while (await dr.ReadAsync())
+                        {
+                            list.Add(new ListProductDetailByMobile()
+                            {
+                                Cuscode = dr["people"].ToString(),
+                                Cusname = dr["Cusnam"].ToString(),
+                                Stkcode = dr["Stkcod"].ToString(),
+                                Stkdes = dr["Stkdes"].ToString(),
+                                BrandName = dr["Brand"].ToString(),
+                                Company = dr["Company"].ToString(),
+                                StockReady = dr["TOTBAL"].ToString(),
+                                Price = dr["Price0"].ToString(),
+                                Moq = dr["Minord"].ToString(),
+                                Uom = dr["UOM"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return list;
+        }
+        public ActionResult IndexCart()
+        {
+            return PartialView("IndexCart", new
+            {
+               
+            });
+        }
+        //model get item by mobileOrder
+        public class ListProductDetailByMobile
+        {
+            public string Cuscode { get; set; }
+            public string Cusname { get; set; }
+            public string Stkcode { get; set; }
+            public string Stkdes { get; set; }
+            public string BrandName { get; set; }
+            public string Company { get; set; }
+            public string StockReady { get; set; }
+            public string Price { get; set; }
+            public string Moq { get; set; }
+            public string Uom { get; set; }
+        }
         public class ListProductApiCount
         {
             public string Stkcode { get; set; }
