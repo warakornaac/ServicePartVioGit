@@ -27,6 +27,9 @@ namespace ServiceCatalog.Models
         public string ApiStatusRemark { get; set; }
         public DateTime ApiStartDate { get; set; }
         public DateTime ApiEndDate { get; set; }
+        public string VerifyStatus { get; set; }
+        public string VerifyStatusRemark { get; set; }
+        public DateTime VerifyDate { get; set; }
         public string InsertedBy { get; set; }
         public DateTime InsertedDate { get; set; }
         public string UpdatedBy { get; set; }

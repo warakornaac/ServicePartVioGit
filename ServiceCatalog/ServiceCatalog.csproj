@@ -160,7 +160,6 @@
     <Compile Include="Controllers\ManageUserController.cs" />
     <Compile Include="Controllers\PartSpecificationController.cs" />
     <Compile Include="Controllers\PrepareProductApiController.cs" />
-    <Compile Include="Controllers\TruAutopartsController.cs" />
     <Compile Include="Controllers\UpLoadDataVIOController.cs" />
     <Compile Include="Controllers\ItemProductController.cs" />
     <Compile Include="Controllers\UploadFileExcelController.cs" />

@@ -23,6 +23,7 @@
                         @ViewBag.countRowImport Records
                     </p>
                 </div>
+                <button class="btn btn-success  ms-auto" onclick="UpdateVerifyStatus();">Update</button>
             </div>
         </div>
         <div class="card-body pt-0 p-2">
@@ -39,8 +40,8 @@
                             <th>ProductCompetitorDate</th>
                             <th>ProductLinkageCount</th>
                             <th>ProductLinkageDate</th>
-                            <th>ApiStatus</th>
-                            <th>ApiStatusRemark</th>
+                            <th>VerifyStatus</th>
+                            <th>VerifyStatusRemark</th>
                             <th>InsertBy</th>
                             <th>InsertDate</th>
                         </tr>
@@ -66,8 +67,8 @@
                                     <td>@(item.ProductCompetitorDate == DateTime.MinValue ? "" : item.ProductCompetitorDate.ToString("yyyy-MM-dd HH:mm:ss"))</td>
                                     <td>@item.ProductLinkageCount</td>
                                     <td>@(item.ProductLinkageDate == DateTime.MinValue ? "" : item.ProductLinkageDate.ToString("yyyy-MM-dd HH:mm:ss"))</td>
-                                    <td>@item.ApiStatus</td>
-                                    <td>@item.ApiStatusRemark</td>
+                                    <td>@item.VerifyStatus</td>
+                                    <td>@item.VerifyStatusRemark</td>
                                     <td>@item.InsertedBy</td>
                                     <td>@(item.InsertedDate == DateTime.MinValue ? "" : item.InsertedDate.ToString("yyyy-MM-dd HH:mm:ss"))</td>
                                 </tr>
@@ -103,4 +104,80 @@
             }
         });
     });
+
+    function GetCountApiList() {
+        $.ajax({
+            url: '@Url.Action("GetProductApiListVerifyCount", "PrepareProductApi")',
+            data: { },
+            type: 'get',
+            dataType: 'json',
+            beforeSend: function () {
+                Swal.fire({
+                    title: 'Searching...',
+                    text: 'Please wait while we searching for the product.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success: function (result) {
+                if (result.message == 'Y') {
+                    //เปลี่ยนชื่อได้นะ
+                    $('#pending-txt').text(result.pendingCount);
+                    $('#total-txt').text(result.totalResult);
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cannot Get Count Api List',
+                        text: `Please capture this alert and contact the MIS department.\n${result.message}`,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Close'
+                    });
+                }
+            }
+        })
+    }
+
+    function UpdateVerifyStatus() {
+        $.ajax({
+            url: '@Url.Action("UpdateProductAPI", "PrepareProductApi")',
+            data: { },
+            type: 'post',
+            dataType: 'json',
+            beforeSend: function () {
+                Swal.fire({
+                    title: 'Searching...',
+                    text: 'Please wait while we updating status for the product.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success: function (result) {
+                if (result.message == 'Y') {
+                    Swal.fire({
+                        title: "Update Verify Status success!",
+                        confirmButtonText: "OK",
+                        icon: "success"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            location.reload();
+                        }
+                    });
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cannot Update Verify Status',
+                        text: `Please capture this alert and contact the MIS department.\n${result.message}`,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Close'
+                    });
+                }
+            }
+        })
+    }
 </script>
