@@ -15,7 +15,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServiceCatalog</RootNamespace>
     <AssemblyName>ServiceCatalog</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress>
@@ -28,6 +28,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TypeScriptToolsVersion>4.3</TypeScriptToolsVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,9 +59,8 @@
       <HintPath>..\packages\EPPlus.Interfaces.8.1.0\lib\net35\EPPlus.Interfaces.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="MyLib, Version=1.0.0.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\MyLib.dll</HintPath>
+    <Reference Include="MyLib">
+      <HintPath>..\..\BudgetForecastGit\BudgetForecast\bin\MyLib.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -69,7 +69,14 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Security" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -78,11 +85,8 @@
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Xml" />
@@ -124,6 +128,7 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -147,15 +152,24 @@
     <Compile Include="Controllers\ApiProductController.cs" />
     <Compile Include="Controllers\ApprovePMController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ItemImagesController.cs" />
     <Compile Include="Controllers\ItemLinkageController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\ManagementController.cs" />
+    <Compile Include="Controllers\ManageUserController.cs" />
     <Compile Include="Controllers\PartSpecificationController.cs" />
+    <Compile Include="Controllers\PrepareProductApiController.cs" />
+    <Compile Include="Controllers\TruAutopartsController.cs" />
     <Compile Include="Controllers\UpLoadDataVIOController.cs" />
     <Compile Include="Controllers\ItemProductController.cs" />
+    <Compile Include="Controllers\UploadFileExcelController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\ImageSyncService.cs" />
+    <Compile Include="Services\NasHelper.cs" />
+    <Compile Include="Wokers\ImageSyncBackgroundWorker.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap-grid.min.css" />
@@ -9057,6 +9071,12 @@
     <Content Include="Content\icon-fonts\tabler-icons\tabler-sprite.svg" />
     <Content Include="Content\icons.css" />
     <Content Include="Content\icons.min.css" />
+    <Content Include="Scripts\truscripts.js" />
+    <Content Include="Content\trustyles.css" />
+    <Content Include="Scripts\assets\css\icons.css" />
+    <Content Include="Scripts\assets\css\icons.min.css" />
+    <Content Include="Scripts\assets\css\styles.css" />
+    <Content Include="Scripts\assets\css\styles.min.css" />
     <Content Include="Scripts\simplebar.js" />
     <Content Include="Scripts\sticky.js" />
     <Content Include="Content\styles.css" />
@@ -10855,6 +10875,9 @@
     <Content Include="fonts\kanit\Kanit-SemiBoldItalic.ttf" />
     <Content Include="fonts\kanit\Kanit-Thin.ttf" />
     <Content Include="fonts\kanit\Kanit-ThinItalic.ttf" />
+    <Content Include="Scripts\assets\css\icons.min.css.map" />
+    <Content Include="Scripts\assets\css\styles.min.css.map" />
+    <Content Include="Content\th.json" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\custom-switcher.min.js" />
     <Content Include="Scripts\custom.js" />
@@ -11435,6 +11458,26 @@
     <Content Include="Views\Include\MenuDemoApi.cshtml" />
     <Content Include="Views\Shared\_LayoutDemoApi.cshtml" />
     <Content Include="Views\ApiProduct\IndexCart.cshtml" />
+    <Content Include="Views\Login\Index.cshtml" />
+    <Content Include="Views\Login\Login.cshtml" />
+    <Content Include="Views\ManageUser\Index.cshtml" />
+    <Content Include="Views\ItemImages\Index.cshtml" />
+    <Content Include="Views\ItemImages\_ListProductImage.cshtml" />
+    <Content Include="Views\TruAutoparts\Index.cshtml" />
+    <Content Include="Views\Parts\_Sidebar.cshtml" />
+    <Content Include="Views\Parts\_ProductGroup.cshtml" />
+    <Content Include="Views\Parts\_Cart.cshtml" />
+    <Content Include="Views\Parts\_ProductSpec.cshtml" />
+    <Content Include="Views\Parts\_Header.cshtml" />
+    <Content Include="Views\UploadFileExcel\CompetitorUpload.cshtml" />
+    <Content Include="Views\UploadFileExcel\OEUpload.cshtml" />
+    <Content Include="Views\UploadFileExcel\_listCompetitor.cshtml" />
+    <Content Include="Views\UploadFileExcel\_listOEUpload.cshtml" />
+    <Content Include="Views\UploadFileExcel\LinkageUpload.cshtml" />
+    <Content Include="Views\UploadFileExcel\_listLinkageUpload.cshtml" />
+    <Content Include="Views\UploadFileExcel\FittingUpload.cshtml" />
+    <Content Include="Views\UploadFileExcel\_listFittingUpload.cshtml" />
+    <Content Include="Views\PrepareProductApi\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
