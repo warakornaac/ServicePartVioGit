@@ -1,11 +1,12 @@
-﻿using System;
+﻿using ServiceCatalog.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using ServiceCatalog.Models;
 
 namespace ServiceCatalog.Controllers
 {
@@ -17,7 +18,9 @@ namespace ServiceCatalog.Controllers
 
             try
             {
-                using (var conn = new SqlConnection(ConfigurationManager.AppSettings["ServiceCatalogDB"]))
+                string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
+
+                using (var conn = new SqlConnection(conString))
                 using (var cmd = new SqlCommand("P_Get_ProductApi_List", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -46,12 +49,19 @@ namespace ServiceCatalog.Controllers
                 }
 
                 ViewBag.ListProduct = result;
-                ViewBag.countRowImport = result.Count;
+                ViewBag.countTotal = result.Count;
+                ViewBag.countDone = result.Count(x => x.VerifyStatus == "Y");
+                ViewBag.countPending = result.Count(x => x.VerifyStatus != "Y");
+                ViewBag.countTodayDone = result.Count(x => x.VerifyStatus == "Y"
+                                             && x.InsertedDate.Date == DateTime.Today);
             }
             catch (Exception ex)
             {
                 ViewBag.ListProduct = new List<PrepareProductApiModel>();
-                ViewBag.countRowImport = 0;
+                ViewBag.countTotal = 0;
+                ViewBag.countDone = 0;
+                ViewBag.countPending = 0;
+                ViewBag.countTodayDone = 0;
                 ViewBag.ErrorMessage = ex.Message;
             }
 
@@ -70,11 +80,11 @@ namespace ServiceCatalog.Controllers
             {
                 using (SqlConnection conn = new SqlConnection(conString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("P_Update_ProductApi", conn))
+                    using (SqlCommand cmd = new SqlCommand("P_Get_ProductApi_List_Count", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@inUser", usr);
-                        cmd.Parameters.AddWithValue("@inSTKCOD", "");
+                        //cmd.Parameters.AddWithValue("@inUser", usr);
+                        //cmd.Parameters.AddWithValue("@inSTKCOD", "");
                         conn.Open();
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
