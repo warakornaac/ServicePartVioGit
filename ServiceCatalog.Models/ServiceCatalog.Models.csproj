@@ -49,12 +49,16 @@
     <Compile Include="ArticleDataModels.cs" />
     <Compile Include="ImportVIOModels.cs" />
     <Compile Include="LinkageDataModels.cs" />
+    <Compile Include="ManageUserModel.cs" />
     <Compile Include="PartNumberNearbyModels.cs" />
+    <Compile Include="PrepareProductApiModel.cs" />
     <Compile Include="ProductApiModel.cs" />
     <Compile Include="ProductCompetitorModel.cs" />
     <Compile Include="PNDescripsModels.cs" />
     <Compile Include="ProductDescriptionModel.cs" />
+    <Compile Include="ProductGroupModel.cs" />
     <Compile Include="ProductImageModel.cs" />
+    <Compile Include="ProductImageViewModel.cs" />
     <Compile Include="ProductLinkageModel.cs" />
     <Compile Include="ProductOemModel.cs" />
     <Compile Include="ProductSpecModel.cs" />
@@ -68,6 +72,10 @@
     <Compile Include="StoredSearchProductTruByStatusModel.cs" />
     <Compile Include="StoredUpdateProductApiModel.cs" />
     <Compile Include="StoreGetLinkageDataModel.cs" />
+    <Compile Include="StoreImportCompetitorUpload.cs" />
+    <Compile Include="StoreImportFittingUpload.cs" />
+    <Compile Include="StoreImportLinkgeUpload.cs" />
+    <Compile Include="StoreImportOEUpload.cs" />
     <Compile Include="StoreSearchVehicleLinkageModel.cs" />
     <Compile Include="VIOModels.cs" />
   </ItemGroup>
