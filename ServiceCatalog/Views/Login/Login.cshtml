@@ -1,0 +1,96 @@
+﻿@{
+    Layout = null;
+}
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light"
+      data-header-styles="light" data-menu-styles="light" data-toggled="close">
+<head>
+    <meta charset="UTF-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Service Catalog</title>
+    <meta name="Description" content="Service Catalog & Tru@Aac">
+    <link rel="icon" href="@Url.Content("~/Images/logo/logo_tru.png")" type="image/x-icon">
+    <link id="style" href="@Url.Content("~/Scripts/libs/bootstrap/css/bootstrap.min.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Scripts/assets/css/styles.min.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Scripts/assets/css/icons.min.css")" rel="stylesheet">
+</head>
+<body>
+    <div class="autentication-bg">
+        <div class="container-lg">
+            <div class="row justify-content-center authentication authentication-basic align-items-center h-100">
+                <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-6 col-sm-8 col-12">
+                    <div class="card custom-card">
+                        <div class="card-body p-4">
+                            <div class="mb-4 d-flex justify-content-center">
+                                <img src="@Url.Content("~/Images/logo/logo.png")" alt="logo" style="width: 25%; height: 25%;">
+                            </div>
+                            <p class="h5 fw-semibold mb-2 text-center">Sign In</p>
+                            <p class="mb-4 text-muted op-7 fw-normal text-center">Welcome back!</p>
+
+                            @* ✅ แสดง Error Message *@
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger">
+                                    @foreach (var error in ViewData.ModelState.Values)
+                                    {
+                                        foreach (var msg in error.Errors)
+                                        {
+                                            <p class="mb-0">@msg.ErrorMessage</p>
+                                        }
+                                    }
+                                </div>
+                            }
+
+                            <form method="POST" action="@Url.Action("Login", "Login")"
+                                  onsubmit="$.LoadingOverlay('show');">
+                                <div class="row gy-3">
+                                    <div class="col-xl-12">
+                                        <label for="signin-username" class="form-label text-default">
+                                            User Name
+                                        </label>
+                                        @* ✅ เพิ่ม name="User" *@
+                                        <input type="text"
+                                               name="User"
+                                               class="form-control form-control-lg"
+                                               id="signin-username"
+                                               placeholder="user name" required>
+                                    </div>
+                                    <div class="col-xl-12 mb-2">
+                                        <label for="signin-password" class="form-label text-default d-block">
+                                            Password
+                                        </label>
+                                        <div class="input-group">
+                                            @* ✅ เพิ่ม name="Password" *@
+                                            <input type="password"
+                                                   name="Password"
+                                                   class="form-control form-control-lg"
+                                                   id="signin-password"
+                                                   placeholder="password" required>
+                                            <button class="btn btn-light" type="button"
+                                                    onclick="createpassword('signin-password', this)"
+                                                    id="button-addon2">
+                                                <i class="ri-eye-off-line align-middle"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12 d-grid mt-2">
+                                        @* ✅ เปลี่ยนจาก <a href> เป็น <button type="submit"> *@
+                                        <button type="submit" class="btn btn-lg btn-primary">
+                                            Sign In
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="@Url.Content("~/Scripts/assets/js/authentication-main.js")"></script>
+    <script src="@Url.Content("~/Scripts/assets/js/show-password.js")"></script>
+    <script src="@Url.Content("~/Scripts/libs/bootstrap/js/bootstrap.bundle.min.js")"></script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+﻿@model List<ServiceCatalog.Models.UsrGrp>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage User Mobile Order</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .panel-primary > .panel-heading {
+            background-color: #337ab7;
+            border-color: #337ab7;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .btn-group-action {
+            white-space: nowrap;
+        }
+
+        .table th {
+            background-color: #f9f9f9;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+
+        .modal-header {
+            background-color: #337ab7;
+            color: white;
+        }
+
+            .modal-header .close {
+                color: white;
+                opacity: 0.8;
+            }
+
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <h2 style="margin:0;">
+                        <i class="fa fa-users"></i> Manage Users
+                    </h2>
+                    <a href="@Url.Action("Index", "Home")" class="btn btn-info btn-sm">
+                        <i class="fa fa-home"></i> Home
+                    </a>
+                </div>
+                <hr />
+
+                @if (ViewBag.ErrorMessage != null)
+                {
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" onclick="this.parentElement.style.display='none'">&times;</button>
+                        <strong>Error!</strong> @ViewBag.ErrorMessage
+                    </div>
+                }
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <i class="fa fa-list"></i> All User @(Model != null ? Model.Count : 0) list
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-success btn-sm" id="btnAddNew">
+                                    <i class="fa fa-plus"></i> Add
+                                </button>
+                                <button type="button" class="btn btn-info btn-sm" onclick="window.location.reload()">
+                                    <i class="fa fa-refresh"></i> Refresh
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="input-group search-box">
+                                    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                                    <input type="text" id="searchBox" class="form-control" placeholder="Search...">
+                                    <span class="input-group-addon"><span id="resultCount">Show all</span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover" id="userTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px;">ID</th>
+                                        <th>User ID</th>
+                                        <th>Usr Name</th>
+                                        <th>Password</th>
+                                        <th>User Type</th>
+                                        <th>Company</th>
+                                        <th>Department</th>
+                                        <th>Email</th>
+                                        <th>Sale Code</th>
+                                        <th style="width: 120px;">Manage</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTableBody">
+                                    @if (Model != null && Model.Count > 0)
+                                    {
+                                        foreach (var user in Model)
+                                        {
+                                            <tr data-search="@(user.ID) @(user.UserID) @(user.UserName) @(user.Password) @(user.UserType) @(user.Company) @(user.Department) @(user.Email) @(user.Slmcod) ">
+                                                <td class="text-center">@user.ID</td>
+                                                <td><strong>@user.UserID</strong></td>
+                                                <td>@user.UserName</td>
+                                                <td>@user.Password</td>
+                                                <td>
+                                                    @if (user.UserType != 0)
+                                                    {
+                                                        <span class="label label-info">@user.UserType</span>
+                                                    }
+                                                </td>
+                                                <td>@user.Company</td>
+                                                <td>@user.Department</td>
+                                                <td>@user.Email</td>
+                                                <td>@user.Slmcod</td>
+                                                <td class="btn-group-action">
+                                                    <button type="button" class="btn btn-warning btn-xs btnEdit" data-id="@user.ID">
+                                                        <i class="fa fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-xs btnDelete" data-id="@user.ID" data-name="@user.UserID">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr id="noDataRow">
+                                            <td colspan="11" class="no-data">
+                                                <i class="fa fa-info-circle fa-3x"></i>
+                                                <p>Not found...</p>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="noResultMessage" style="display:none;" class="alert alert-warning">
+                            <i class="fa fa-exclamation-triangle"></i> Not found...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add User -->
+    <div class="modal fade" id="modalAddUser" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><i class="fa fa-plus-circle"></i> Add New User</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="formAddUser">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="required-field">User ID (AD Account)</label>
+                                    <input type="text" class="form-control" id="add_UsrID" placeholder="e.g. somchai_s" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="required-field">User Type</label>
+                                    <select class="form-control" id="add_UsrTyp" required>
+                                        <option value="0">-- Select User Type --</option>
+                                        <option value="1">Admin</option>
+                                        <option value="2">Product</option>
+                                        <option value="3">Sales</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            <i class="fa fa-times"></i> Cancel
+                        </button>
+                        <button type="button" class="btn btn-success" id="btnSaveAdd">
+                            <i class="fa fa-save"></i> Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit User -->
+    <div class="modal fade" id="modalEditUser" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><i class="fa fa-edit"></i> Edit User</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditUser">
+                        <!-- hidden id used by the JS -->
+                        <input type="hidden" id="edit_ID" />
+                        <div class="alert alert-info">
+                            <strong>User Info:</strong>
+                            <div id="edit_UserInfo"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>User ID</label>
+                                    <input type="text" class="form-control" id="edit_UsrID" disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>User Name</label>
+                                    <input type="text" class="form-control" id="edit_Username" disabled />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Company</label>
+                                    <input type="text" class="form-control" id="edit_Company" disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Department</label>
+                                    <input type="text" class="form-control" id="edit_Department" disabled />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="text" class="form-control" id="edit_Email" disabled />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="required-field">User Type</label>
+                                    <select class="form-control" id="edit_UsrTyp" required>
+                                        <option value="0">-- Select Type --</option>
+                                        <option value="1">Admin</option>
+                                        <option value="2">Product</option>
+                                        <option value="3">Sales</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Sale Code</label>
+                                    <input type="text" class="form-control" id="edit_SLMCOD">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-times"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnSaveEdit">
+                        <i class="fa fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery (required for Bootstrap Modal) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var userTableBody = document.getElementById('userTableBody');
+            var searchBox = document.getElementById('searchBox');
+            var btnAddNew = document.getElementById('btnAddNew');
+            var resultCount = document.getElementById('resultCount');
+            var noResultMessage = document.getElementById('noResultMessage');
+            var allRows = userTableBody.querySelectorAll('tr:not(#noDataRow)');
+            var totalRows = allRows.length;
+
+            // Update result count
+            function updateResultCount(visibleCount) {
+                if (visibleCount === totalRows) {
+                    resultCount.textContent = 'Show all ' + totalRows + ' List';
+                } else {
+                    resultCount.textContent = 'Find ' + visibleCount + ' from ' + totalRows + ' list';
+                }
+            }
+
+            // Search functionality
+            if (searchBox) {
+                searchBox.addEventListener('keyup', function() {
+                    var filter = this.value.toLowerCase().trim();
+                    var visibleCount = 0;
+
+                    allRows.forEach(function(row) {
+                        var searchData = row.getAttribute('data-search');
+                        if (searchData && searchData.toLowerCase().includes(filter)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    if (visibleCount === 0 && filter !== '') {
+                        noResultMessage.style.display = 'block';
+                    } else {
+                        noResultMessage.style.display = 'none';
+                    }
+
+                    updateResultCount(visibleCount);
+                });
+            }
+
+            // Add New Button - Open Modal
+            if (btnAddNew) {
+                btnAddNew.addEventListener('click', function() {
+                    $('#modalAddUser').modal('show');
+                    document.getElementById('formAddUser').reset();
+                });
+            }
+
+            // Save Add User
+            document.getElementById('btnSaveAdd').addEventListener('click', function() {
+                var formData = {
+                    UsrID: document.getElementById('add_UsrID').value,
+                    UsrTyp: parseInt(document.getElementById('add_UsrTyp').value) || 0,
+                };
+
+                // Validate required fields
+                if (!formData.UsrID) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("Create", "ManageUser")',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            $('#modalAddUser').modal('hide');
+                            window.location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error: ' + error);
+                    }
+                });
+            });
+
+            // สร้างตัวแปร global หรือแฝงไว้ใน object เพื่อเก็บ UsrID ไว้ใช้ตอนกด Save
+            var currentEditUsrID = "";
+
+            // Edit Buttons - Open Modal
+            var editButtons = document.querySelectorAll('.btnEdit');
+            editButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var id = this.getAttribute('data-id');
+
+                    $.ajax({
+                        url: '@Url.Action("GetUserById", "ManageUser")',
+                        type: 'GET',
+                        data: { id: id },
+                        success: function(response) {
+                            if (response.success) {
+                                var user = response.data;
+
+                                //เก็บ UsrID ไว้ส่งตอน Save
+                                currentEditUsrID = user.UsrID;
+
+                                document.getElementById('edit_ID').value = user.ID;
+                                document.getElementById('edit_UsrID').value = user.UserID
+                                document.getElementById('edit_Username').value = user.UserName
+                                document.getElementById('edit_Company').value = user.Company;
+                                document.getElementById('edit_Department').value = user.Department;
+                                document.getElementById('edit_Email').value = user.Email;
+                                document.getElementById('edit_SLMCOD').value = user.Slmcod || '';
+                                document.getElementById('edit_UsrTyp').value = user.UsrTyp || 0;
+                                var userInfo = '<strong>ID:</strong> ' + user.ID + '<br>';
+                                document.getElementById('edit_UserInfo').innerHTML = userInfo;
+
+                                $('#modalEditUser').modal('show');
+                            } else {
+                                alert('Error: ' + response.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Error: ' + error);
+                        }
+                    });
+                });
+            });
+
+            // Save Edit User
+            document.getElementById('btnSaveEdit').addEventListener('click', function () {
+                var noEl = document.getElementById('edit_ID');
+                var usrTypEl = document.getElementById('edit_UsrTyp');
+                var id = noEl ? parseInt(noEl.value, 10) || 0 : 0;
+                var usrTyp = usrTypEl ? parseInt(usrTypEl.value, 10) || 0 : 0;
+
+                if (!id) {
+                    alert('Invalid record selected.');
+                    return;
+                }
+
+                if (usrTyp === 0) {
+                    alert('Select User Type');
+                    return;
+                }
+
+                var formData = {
+                    UsrID: currentEditUsrID,
+                    ID: id,
+                    UsrTyp: usrTyp,
+                    Slmcod: document.getElementById('edit_SLMCOD').value,
+                };
+
+                $.ajax({
+                    url: '@Url.Action("Update", "ManageUser")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            alert('Updated successfully.');
+                            $('#modalEditUser').modal('hide');
+                            window.location.reload();
+                        } else {
+                            alert('Something went wrong.: ' + response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert('Error: ' + error);
+                    }
+                });
+            });
+
+            // Delete Buttons
+            var deleteButtons = document.querySelectorAll('.btnDelete');
+            deleteButtons.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var id = this.getAttribute('data-id');
+                    var UsrID = this.getAttribute('data-name');
+
+                    if (confirm(' Are you sure?\n\nDelete ID: ' + id + '\nuser: ' + UsrID + '\n\n** This action cannot be undone **')) {
+                        $.ajax({
+                            url: '@Url.Action("Delete", "ManageUser")',
+                            type: 'POST',
+                            data: { id: id },
+                            success: function(response) {
+                                if (response.success) {
+                                    alert(response.message);
+                                    window.location.reload();
+                                } else {
+                                    alert('Error: ' + response.message);
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                alert('Error: ' + error);
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Initialize result count
+            updateResultCount(totalRows);
+        });
+    </script>
+
+</body>
+</html>

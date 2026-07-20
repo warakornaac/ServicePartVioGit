@@ -1,0 +1,271 @@
+﻿@{
+    List<SelectListItem> getListProductName = ViewBag.listProductName;
+}
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.th.min.js"></script>
+
+<div class="page-header">
+    <h1 class="page-title my-auto">Item Images</h1>
+    <div>
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index","Home")">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Item Images </li>
+        </ol>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xl-12">
+        <div class="card custom-card">
+            <div class="card-header justify-content-between"> <div class="card-title"> Item Images </div> <div class="prism-toggle"> </div> </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="form-text" class="form-label fs-14 text-dark">Product Mgr : </label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <i class="ri-user-search-fill"></i>
+                            </div>
+                            <select class="form-control selectpicker" id="txtProductCode" name="txtProductCode" style="width: 100%;" data-live-search="true" title="SELECT PRODUCT">
+                                <option value="ALL">SELECT PRODUCT</option>
+                                @for (var i = 0; i < getListProductName.Count; i++)
+                                {
+                                    <option value="@getListProductName[i].Value" @(getListProductName[i].Value == "30" ? "selected" : "")> @getListProductName[i].Text </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="form-text" class="form-label fs-14 text-dark">Sec : </label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <i class="ri-roadster-fill"></i>
+                            </div>
+                            <select class="form-control selectpicker" id="txtSec" name="txtSec" style="width: 100%;" data-live-search="true" title="SELECT SEC">
+                                <option value="ALL">SELECT SEC</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="form-text" class="form-label fs-14 text-dark">Stock Group : </label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <i class="ri-roadster-fill"></i>
+                            </div>
+                            <select class="form-control selectpicker" id="txtStockGroup" name="txtStockGroup" style="width: 100%;" data-live-search="true" title="SELECT STOCK GROUP">
+                                <option value="ALL">SELECT STOCK GROUP</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <label for="form-text" class="form-label fs-14 text-dark">Stock Code : </label>
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <i class="ri-settings-5-fill"></i>
+                            </div>
+                            <input type="text" class="form-control ui-autocomplete-input" id="txtStockCode" value="" placeholder="STOCK CODE" autocomplete="off">
+                            <input type="hidden" class="form-control" id="stockCodeSearch">
+                            <div class="input-group-text" onclick="resetStkcode();">
+                                <i class="ri-close-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row text-right">
+                    <div class="col-xs-12 col-md-12 text-end">
+                        <button class="btn btn-primary" onclick="getItemProduct();">Search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="showResultItemProduct"></div>
+@*content responsd list*@
+<div id="getItemProduct" class="pt-1 pb-1"></div>
+
+<script defer>
+    //datepicker
+    $('.datepicker').datepicker('destroy');
+    $('.datepicker').datepicker({
+        format: 'dd/mm/yyyy',
+        language: 'th',
+        autoclose: true,
+        todayHighlight: true
+        // Do not include setDate here
+    });
+
+    //call api
+    function getItemProduct () {
+        var txtPartNo = $("#stockCodeSearch").val() || $("#txtStockCode").val();
+        var txtStatusId = $("#txtStatusId option:selected").val();
+        var txtCalldate = $("#txtCalldate").val();
+        var company = $('#txtCompany option:selected').val();
+        var prodCode = $('#txtProductCode option:selected').val();
+        var secCode = $('#txtSec option:selected').val();
+        var stockGroup = $('#txtStockGroup option:selected').val();
+        var msg = '';
+        var error = 0;
+        //alert(txtStatusId);
+        $.ajax({
+            url: '@Url.Action("GetListProductImage", "ItemImages")',
+            type: 'POST',
+            data: {
+                Company: company,
+                SecCode: secCode,
+                StockGroup: stockGroup,
+                ProdCode: prodCode,
+                Stkcode: txtPartNo.trim(),
+                BrandId: "",
+                RowNumber: "",
+                ApiStatus: txtStatusId,
+                CallDate: txtCalldate
+            },
+            dataType: 'html',
+            cache: false,
+            Async: true,
+            beforeSend: function () {
+                $('#showResultItemProduct').empty();
+                Swal.fire({
+                    title: 'Searching...',
+                    text: 'Please wait search for the item.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success: function (res) {
+                Swal.close();
+                $('#showResultItemProduct').html(res);
+                //LoadingHide();
+            }
+        });
+    }
+    //get stkcode
+    $("#txtStockCode").autocomplete({
+        selectFirst: true,
+        autoFocus: true,
+        source: function (request, response) {
+            var param = {
+                txtSearch: $("#txtStockCode").val(),
+                company: $('#txtCompany option:selected').val(),
+                secCode: $('#txtSec option:selected').val(),
+                stockGroup: $('#txtStockGroup option:selected').val(),
+                prodCode: $('#txtProductCode option:selected').val(),
+            };
+            $.ajax({
+                url: '@Url.Action("getStockCode", "PartSpecification")',
+                data: JSON.stringify(param),
+                dataType: "json",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataFilter: function (data) { return data; },
+                success: function (data) {
+                    response($.map(data.slice(0, 50), function (item) {
+                        return {
+                            value: item
+                        }
+                    }))
+                },
+                error: function (XMLhttpsRequest, textStatus, errorThrown) {
+                    alert(textStatus);
+                }
+            });
+        },
+        select: function (event, ui) {
+            var _val = ui.item.value;
+            var _splito = "";
+            _splito = _val.split('|');
+            var splitval = _splito;
+            _scus = _splito[0].trim();
+            console.log("sub(0) = " + _splito[0].trim() + " sub(1) = " + _splito[1].trim())
+            //searchPartByStkcode(_splito[0].trim());
+            if (_splito[0] != null) {
+                $("#stockCodeSearch").val(_splito[0].trim());
+            }
+        },
+        minLength: 2
+    });
+     //get ProductCode
+    $('#txtProductCode').change(function () {
+        var prodCode = $(this).val();
+        var company = $('#txtCompany option:selected').val();
+        GetSection(prodCode, company);
+    });
+    //get sec
+    $('#txtSec').change(function () {
+        var prodCode = $('#txtProductCode option:selected').val();
+        var company = $('#txtCompany option:selected').val();
+        var sec = $(this).val();
+        GetStockGroup(prodCode, sec, company);
+    });
+    //get Company
+    $('#txtCompany').change(function () {
+        var company = $(this).val();
+        var sec = $('#txtSec option:selected').val();
+        var prodCode = $('#txtProductCode option:selected').val();
+        GetStockGroup(prodCode, sec, company);
+    });
+    //get section
+    function GetSection(prodCode, company) {
+        $.ajax({
+            url: '@Url.Action("getSection", "PartSpecification")',
+            data: {
+                prodCode: prodCode
+            },
+            type: "POST",
+            dataType: "JSON",
+            success: function (data) {
+                var select = $("#txtSec");
+                select.children().remove();
+                select.append($("<option>").val("ALL").text("STOCK SEC ALL"));
+                $(data).each(function (index, item) {
+                    select.append($("<option>").val(item.SEC).text(item.SEC + "/" + item.SECNAM));
+                });
+                $('#txtSec').selectpicker('refresh');
+            }
+        });
+    }
+    //get stockGroup
+    function GetStockGroup(prodCode, secCode, company) {
+        if (prodCode == null || prodCode == '') {
+            prodCode = "ALL";
+        }
+        if (company == null || company == '') {
+            company = "ALL";
+        }
+        console.log("prodCode = " + prodCode + " company = " + company);
+       $.ajax({
+            url: '@Url.Action("getStockGroup", "PartSpecification")',
+            data: {
+                prodCode: prodCode,
+                secCode: secCode,
+                company: company,
+            },
+            type: "POST",
+            dataType: "JSON",
+            success: function (data) {
+                // console.log(data);
+                var select = $("#txtStockGroup");
+                select.children().remove();
+                select.append($("<option>").val("ALL").text("STOCK GROUP ALL"));
+                $(data).each(function (index, item) {
+                    select.append($("<option>").val(item.STKGRP).text(item.STKGRP + "/" + item.GRPNAM));
+                });
+                $('#txtStockGroup').selectpicker('refresh');
+            }
+        });
+    }
+    $('#txtStockCode').on('click', function () {
+        $(this).select();
+    });
+    function resetStkcode() {
+        $("#txtStockCode").val('');
+        $('#txtStockCode').focus();
+    }
+</script>
