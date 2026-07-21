@@ -23,15 +23,9 @@
             <div class="card-body" style="padding:10px">
                 <div class="d-flex justify-content-between">
                     <div class="mt-2">
-                        <h6 class="fw-normal">Call Item วันนี้ / คงเหลือ</h6>
+                        <h6 class="fw-normal">Call Item วันนี้</h6>
                         <div class="d-flex align-items-center">
-                            <h2 class="mb-0 text-dark fw-semibold me-2">
-                                @ViewBag.countTotal
-                            </h2>
-                            <span>/</span>
-                            <h2 class="mb-0 text-dark fw-semibold ms-2">
-                                @ViewBag.countPending
-                            </h2>
+                            <h2 class="mb-0 text-dark fw-semibold me-2" id="todayCount"></h2>
                         </div>
                     </div>
                     <div class="chart-wrapper mt-1">
@@ -46,8 +40,8 @@
             <div class="card-body" style="padding:10px">
                 <div class="d-flex">
                     <div class="mt-2">
-                        <h6 class="fw-normal">Item ทั้งหมด</h6>
-                        <h2 class="mb-0 text-dark fw-semibold">@ViewBag.countTotal</h2>
+                        <h6 class="fw-normal">Call Item วันนี้คงเหลือ</h6>
+                        <h2 class="mb-0 text-dark fw-semibold ms-2" id="todayPending"></h2>
                     </div>
                     <div class="ms-auto">
                         <div class="chart-wrapper mt-1">
@@ -63,8 +57,8 @@
             <div class="card-body" style="padding:10px">
                 <div class="d-flex">
                     <div class="mt-2">
-                        <h6 class="fw-normal">Call Api ทั้งหมดแล้ว</h6>
-                        <h2 class="mb-0 text-dark fw-semibold">@ViewBag.countDone</h2>
+                        <h6 class="fw-normal">Item ทั้งหมด</h6>
+                        <h2 class="mb-0 text-dark fw-semibold" id="totalResult">@ViewBag.countTotal</h2>
                     </div>
                     <div class="ms-auto">
                         <div class="chart-wrapper mt-1">
@@ -80,8 +74,8 @@
             <div class="card-body" style="padding:10px">
                 <div class="d-flex">
                     <div class="mt-2">
-                        <h6 class="fw-normal">Call Api วันนี้ไปแล้ว</h6>
-                        <h2 class="mb-0 text-dark fw-semibold">@ViewBag.countTodayDone</h2>
+                        <h6 class="fw-normal">คงเหลือทั้งหมด</h6>
+                        <h2 class="mb-0 text-dark fw-semibold" id="pendingCount"></h2>
                     </div>
                     <div class="ms-auto">
                         <div class="chart-wrapper mt-1">
@@ -193,8 +187,10 @@
             dataType: 'json',
             success: function (result) {
                 if (result.message == 'Y') {
-                    $('#pending-txt').text(result.totalResult);
-                    $('#remain-txt').text(result.pendingCount);
+                    $('#todayCount').text(result.todayCount);
+                    $('#todayPending').text(result.todayPending);
+                    $('#totalResult').text(result.totalResult);
+                    $('#pendingCount').text(result.pendingCount);
                 }
             },
             error: function () {
@@ -241,7 +237,6 @@
                 }
             },
             complete: function () {
-                // ปิด loading เฉพาะกรณี error เพราะ success จะเปิด Swal ใหม่เอง
                 if (!Swal.isVisible()) Swal.close();
             }
         });
