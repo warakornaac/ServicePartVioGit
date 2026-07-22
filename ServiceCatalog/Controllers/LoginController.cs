@@ -58,14 +58,13 @@ namespace ServiceCatalog.Controllers
 
                     // ✅ JOIN UsrTbl + v_ADUser เช็คว่ามี User ใน AD และ UsrTbl
                     string sql = @"SELECT Usr.UserType, Usr.Slmcod,
-                                          Ad.Department, Ad.Company,
-                                          Ad.FName, Ad.LName, Ad.mail,
-                                          Ad.Position, Ad.EmpID
-                                   FROM UsrTbl Usr
-                                   INNER JOIN [LIP].[dbo].[v_ADUser] Ad 
-                                          ON Ad.LogInName = Usr.UserID
-                                   WHERE Usr.UserID = @inUser
-                                   AND Usr.Password IS NULL";
+                      Ad.Department, Ad.Company,
+                      Ad.FName, Ad.LName, Ad.mail,
+                      Ad.Position, Ad.EmpID
+               FROM UsrTbl Usr
+               INNER JOIN [LIP].[dbo].[v_ADUser] Ad 
+                      ON Ad.LogInName = Usr.UserID
+               WHERE Usr.UserID = @inUser";
 
                     using (SqlCommand cmd = new SqlCommand(sql, conn))
                     {
@@ -148,10 +147,9 @@ namespace ServiceCatalog.Controllers
                       Ad.FName, Ad.LName, Ad.mail,
                       Ad.Position, Ad.EmpID
                FROM UsrTbl Usr
-               LEFT JOIN [dbo].[v_ADUser] Ad 
+               INNER JOIN [LIP].[dbo].[v_ADUser] Ad 
                       ON Ad.LogInName = Usr.UserID
-               WHERE Usr.UserID = @inUser
-               AND [dbo].F_decrypt(Usr.[Password]) = @inPassword";
+               WHERE Usr.UserID = @inUser";
 
                     using (SqlCommand cmd = new SqlCommand(sql, conn))
                     {

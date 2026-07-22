@@ -1,11 +1,9 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace ServiceCatalog.Models
 {
     public class UsrGrp
     {
-        [Key]
         public int ID { get; set; }
         public string UserID { get; set; }
         public string UserName { get; set; }

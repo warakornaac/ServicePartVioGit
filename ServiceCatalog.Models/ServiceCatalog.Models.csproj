@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ServiceCatalog.Models</RootNamespace>
     <AssemblyName>ServiceCatalog.Models</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,10 +52,12 @@
     <Compile Include="LinkageDataModels.cs" />
     <Compile Include="ManageUserModel.cs" />
     <Compile Include="PartNumberNearbyModels.cs" />
+    <Compile Include="PrepareProductApiModel.cs" />
     <Compile Include="ProductApiModel.cs" />
     <Compile Include="ProductCompetitorModel.cs" />
     <Compile Include="PNDescripsModels.cs" />
     <Compile Include="ProductDescriptionModel.cs" />
+    <Compile Include="ProductGroupModel.cs" />
     <Compile Include="ProductImageModel.cs" />
     <Compile Include="ProductImageViewModel.cs" />
     <Compile Include="ProductLinkageModel.cs" />
@@ -71,6 +74,7 @@
     <Compile Include="StoredUpdateProductApiModel.cs" />
     <Compile Include="StoreGetLinkageDataModel.cs" />
     <Compile Include="StoreImportCompetitorUpload.cs" />
+    <Compile Include="StoreImportFittingUpload.cs" />
     <Compile Include="StoreImportLinkgeUpload.cs" />
     <Compile Include="StoreImportOEUpload.cs" />
     <Compile Include="StoreSearchVehicleLinkageModel.cs" />

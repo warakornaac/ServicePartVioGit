@@ -1,0 +1,244 @@
+@using ServiceCatalog.Models;
+@{
+    string currentDate = DateTime.Now.ToString("dd-MM-yy");
+}
+
+<div class="page-header">
+    <h1 class="page-title my-auto">
+        Prepare Product Api
+    </h1>
+    <div>
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Home")">Home</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Prepare Product Api</li>
+        </ol>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xxl-3">
+        <div class="card overflow-hidden">
+            <div class="card-body" style="padding:10px">
+                <div class="d-flex justify-content-between">
+                    <div class="mt-2">
+                        <h6 class="fw-normal">Call Item วันนี้</h6>
+                        <div class="d-flex align-items-center">
+                            <h2 class="mb-0 text-dark fw-semibold me-2" id="todayCount"></h2>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper mt-1">
+                        <canvas id="profitchart" class="chart-dropshadow"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xxl-3">
+        <div class="card overflow-hidden">
+            <div class="card-body" style="padding:10px">
+                <div class="d-flex">
+                    <div class="mt-2">
+                        <h6 class="fw-normal">Call Item วันนี้คงเหลือ</h6>
+                        <h2 class="mb-0 text-dark fw-semibold ms-2" id="todayPending"></h2>
+                    </div>
+                    <div class="ms-auto">
+                        <div class="chart-wrapper mt-1">
+                            <canvas id="saleschart" class="chart-dropshadow"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xxl-3">
+        <div class="card overflow-hidden">
+            <div class="card-body" style="padding:10px">
+                <div class="d-flex">
+                    <div class="mt-2">
+                        <h6 class="fw-normal">Item ทั้งหมด</h6>
+                        <h2 class="mb-0 text-dark fw-semibold" id="totalResult">@ViewBag.countTotal</h2>
+                    </div>
+                    <div class="ms-auto">
+                        <div class="chart-wrapper mt-1">
+                            <canvas id="leadschart" class="chart-dropshadow"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xxl-3">
+        <div class="card overflow-hidden">
+            <div class="card-body" style="padding:10px">
+                <div class="d-flex">
+                    <div class="mt-2">
+                        <h6 class="fw-normal">คงเหลือทั้งหมด</h6>
+                        <h2 class="mb-0 text-dark fw-semibold" id="pendingCount"></h2>
+                    </div>
+                    <div class="ms-auto">
+                        <div class="chart-wrapper mt-1">
+                            <canvas id="costchart" class="chart-dropshadow"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xl-12">
+    <div class="card custom-card">
+        <div class="card-header" style="padding: 10px 20px;">
+            <div class="d-flex align-items-center w-100">
+                <i class="fe fe-list"></i>
+                <div class="p-1">
+                    <p class="mb-0 fw-semibold fs-14 text-info">
+                        @ViewBag.countTotal Records
+                    </p>
+                </div>
+                <button class="btn btn-success  ms-auto" onclick="UpdateVerifyStatus();">Update</button>
+            </div>
+        </div>
+        <div class="card-body pt-0 p-2">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered"
+                       id="tableListProduct" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Stkcode</th>
+                            <th>BrandId</th>
+                            <th>BrandName</th>
+                            <th>ProductCompetitorCount</th>
+                            <th>ProductCompetitorDate</th>
+                            <th>ProductLinkageCount</th>
+                            <th>ProductLinkageDate</th>
+                            <th>VerifyStatus</th>
+                            <th>VerifyStatusRemark</th>
+                            <th>InsertBy</th>
+                            <th>InsertDate</th>
+                        </tr>
+                    </thead>
+                    @if (ViewBag.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger m-2">
+                            @ViewBag.ErrorMessage
+                        </div>
+                    }
+                    <tbody>
+                        @if (ViewBag.ListProduct != null)
+                        {
+                            int no = 1;
+                            foreach (var item in (List<PrepareProductApiModel>)ViewBag.ListProduct)
+                            {
+                                <tr class="@(item.ApiStatus == "N" ? "table-danger" : "")">
+                                    <td>@no</td>
+                                    <td>@item.Stkcode</td>
+                                    <td>@item.BrandId</td>
+                                    <td>@item.BrandName</td>
+                                    <td>@item.ProductCompetitorCount</td>
+                                    <td>@(item.ProductCompetitorDate == DateTime.MinValue ? "" : item.ProductCompetitorDate.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                                    <td>@item.ProductLinkageCount</td>
+                                    <td>@(item.ProductLinkageDate == DateTime.MinValue ? "" : item.ProductLinkageDate.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                                    <td>@item.VerifyStatus</td>
+                                    <td>@item.VerifyStatusRemark</td>
+                                    <td>@item.InsertedBy</td>
+                                    <td>@(item.InsertedDate == DateTime.MinValue ? "" : item.InsertedDate.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                                </tr>
+                                no++;
+                            }
+                        }
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#tableListProduct').DataTable({
+            pageLength: 25,
+            lengthMenu: [10, 25, 50, 100],
+            order: [],
+            language: {
+                search: "ค้นหา:",
+                lengthMenu: "Show _MENU_ List",
+                infoEmpty: "Not Found",
+                zeroRecords: "Not Found",
+                paginate: {
+                    first: "First",
+                    last: "Last",
+                    next: "Next",
+                    previous: "Before"
+                }
+            }
+        });
+
+        GetCountApiList();
+    });
+
+    function GetCountApiList() {
+        $.ajax({
+            url: '@Url.Action("GetProductApiListVerifyCount", "PrepareProductApi")',
+            type: 'get',
+            dataType: 'json',
+            success: function (result) {
+                if (result.message == 'Y') {
+                    $('#todayCount').text(result.todayCount);
+                    $('#todayPending').text(result.todayPending);
+                    $('#totalResult').text(result.totalResult);
+                    $('#pendingCount').text(result.pendingCount);
+                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot Load Count',
+                    confirmButtonText: 'Close'
+                });
+            }
+        });
+    }
+
+    function UpdateVerifyStatus() {
+        $.ajax({
+            url: '@Url.Action("UpdateProductAPI", "PrepareProductApi")',
+            data: {},
+            type: 'post',
+            dataType: 'json',
+            beforeSend: function () {
+                Swal.fire({
+                    title: 'Updating...',
+                    text: 'Please wait while we updating status for the product.',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+            },
+            success: function (result) {
+                if (result.message == 'Y') {
+                    Swal.fire({
+                        title: "Update Verify Status success!",
+                        confirmButtonText: "OK",
+                        icon: "success"
+                    }).then((res) => {
+                        if (res.isConfirmed) location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cannot Update Verify Status',
+                        text: `Please capture this alert and contact the MIS department.\n${result.message}`,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Close'
+                    });
+                }
+            },
+            complete: function () {
+                if (!Swal.isVisible()) Swal.close();
+            }
+        });
+    }
+</script>

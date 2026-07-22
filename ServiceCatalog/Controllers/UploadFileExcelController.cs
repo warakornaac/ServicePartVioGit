@@ -475,5 +475,162 @@ namespace ServiceCatalog.Controllers
             return PartialView("_listOEUpload");
         }
 
+        [HttpGet]
+        public ActionResult FittingUpload()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult FittingUpload(HttpPostedFileBase fileInput, string Stkcode)
+        {
+            string filePath = string.Empty;
+            string txtMessage = string.Empty;
+            string txtStatus = string.Empty;
+            var countRowImport = 0;
+            var countStatusSuccess = 0;
+            var countStatusFail = 0;
+            var insertedBy = Session["UserID"]?.ToString() ?? "";
+            List<StoreImportFittingUpload> listFitting = new List<StoreImportFittingUpload>();
+
+            try
+            {
+                if (fileInput == null)
+                    throw new Exception("กรุณาเลือกไฟล์ก่อนอัปโหลด");
+
+                string extension = Path.GetExtension(fileInput.FileName).ToLower();
+                if (extension != ".xls" && extension != ".xlsx")
+                    throw new Exception("กรุณาอัปโหลดไฟล์ Excel (.xls หรือ .xlsx) เท่านั้น");
+
+                // ----- บันทึกไฟล์ชั่วคราว -----
+                string path = Server.MapPath("~/FileExcelUpload/");
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                filePath = Path.Combine(path, Path.GetFileName(fileInput.FileName));
+                if (System.IO.File.Exists(filePath))
+                    System.IO.File.Delete(filePath);
+
+                fileInput.SaveAs(filePath);
+                System.Threading.Thread.Sleep(100);
+
+                // ----- เปิด DB Connection -----
+                var connectionString = Utils.GetConfig("ServiceCatalogDB");
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // ----- เปิด Excel ด้วย OleDb -----
+                    string conString = $@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filePath};Extended Properties=Excel 12.0;Persist Security Info=False";
+
+                    using (OleDbConnection excelConn = new OleDbConnection(conString))
+                    {
+                        excelConn.Open();
+
+                        // อ่าน sheet Vehicle
+                        using (OleDbCommand excelCmd = new OleDbCommand("SELECT * FROM [Master$]", excelConn))
+                        using (OleDbDataReader dReader = excelCmd.ExecuteReader())
+                        {
+                            while (dReader.Read())
+                            {
+                                // ใช้ index แทนชื่อ column เพื่อหลีกเลี่ยงปัญหา "No." (dot) และ case
+                                string colStkcode = dReader[2]?.ToString()?.Trim() ?? "";
+                                string colAxis = dReader[9]?.ToString()?.Trim() ?? "";
+                                string colSide = dReader[10]?.ToString()?.Trim() ?? "";
+                                string colLevel = dReader[11]?.ToString()?.Trim() ?? "";
+                                string colDirection = dReader[12]?.ToString()?.Trim() ?? "";
+
+                                // ข้ามแถวที่ No. ว่าง
+                                if (string.IsNullOrWhiteSpace(colStkcode))
+                                    continue;
+
+                                countRowImport++;
+
+                                using (SqlCommand cmdUpload = new SqlCommand("P_Upload_Fitting_Excel", connection))
+                                {
+                                    cmdUpload.CommandType = CommandType.StoredProcedure;
+                                    cmdUpload.Parameters.AddWithValue("@Stkcode", colStkcode);
+                                    cmdUpload.Parameters.AddWithValue("@Axis", colAxis);
+                                    cmdUpload.Parameters.AddWithValue("@Side", colSide);
+                                    cmdUpload.Parameters.AddWithValue("@Level", colLevel);
+                                    cmdUpload.Parameters.AddWithValue("@Direction", colDirection);
+                                    cmdUpload.Parameters.AddWithValue("@InsertedBy", insertedBy);
+
+                                    // OUTPUT parameter — อ่านได้หลัง Reader ปิดเท่านั้น
+                                    SqlParameter outStatus = new SqlParameter("@outGenstatus", SqlDbType.NVarChar, 100)
+                                    {
+                                        Direction = ParameterDirection.Output
+                                    };
+                                    cmdUpload.Parameters.Add(outStatus);
+
+                                    // ใช้ ExecuteReader เพื่ออ่าน result set จาก SP
+                                    using (SqlDataReader dr = cmdUpload.ExecuteReader())
+                                    {
+                                        while (dr.Read())
+                                        {
+                                            string statusImport = dr["StatusImport"]?.ToString() ?? "N";
+                                            string errorImport = dr["ErrorImport"]?.ToString() ?? "";
+
+                                            if (statusImport == "Y")
+                                                countStatusSuccess++;
+                                            else
+                                                countStatusFail++;
+
+                                            listFitting.Add(new StoreImportFittingUpload()
+                                            {
+                                                Stkcode = dr["Stkcode"]?.ToString() ?? "",
+                                                Axis = dr["Axis"]?.ToString() ?? "",
+                                                Side = dr["Side"]?.ToString() ?? "",
+                                                Level = dr["Level"]?.ToString() ?? "",
+                                                Direction = dr["Direction"]?.ToString() ?? "",
+                                                InsertedBy = dr["InsertedBy"]?.ToString() ?? "",
+                                                InsertedDate = dr["InsertedDate"]?.ToString() ?? "",
+                                                UpdatedBy = dr["UpdatedBy"]?.ToString() ?? "",
+                                                UpdatedDate = dr["UpdatedDate"]?.ToString() ?? "",
+                                                StatusImport = statusImport,
+                                                ErrorImport = errorImport
+                                            });
+
+                                            // Debug log
+                                            System.Diagnostics.Debug.WriteLine(
+                                                $"[Row {countRowImport}] Stkcode={dr["Stkcode"]} | " +
+                                                $"StatusImport={statusImport} | " +
+                                                $"Error={errorImport}"
+                                            );
+                                        }
+                                    }
+                                    // อ่าน OUTPUT parameter หลัง Reader ปิดแล้ว
+                                    string outGenstatus = outStatus.Value?.ToString() ?? "";
+                                    System.Diagnostics.Debug.WriteLine($"[Row {countRowImport}] outGenstatus={outGenstatus}");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                txtMessage = $"{ex.Message} / {ex.Source} / {ex.HResult}";
+                System.Diagnostics.Debug.WriteLine($"[UploadFitting ERROR] {txtMessage}");
+            }
+            finally
+            {
+                // ลบไฟล์ชั่วคราวหลังประมวลผลเสร็จ
+                if (!string.IsNullOrEmpty(filePath) && System.IO.File.Exists(filePath))
+                {
+                    try { System.IO.File.Delete(filePath); }
+                    catch { /* ไม่ต้องทำอะไรถ้าลบไม่ได้ */ }
+                }
+            }
+
+            ViewBag.status = txtStatus;
+            ViewBag.message = txtMessage;
+            ViewBag.listFitting = listFitting;
+            ViewBag.countStatusSuccess = countStatusSuccess;
+            ViewBag.countStatusFail = countStatusFail;
+            ViewBag.countRowImport = countRowImport;
+
+            return PartialView("_listFittingUpload");
+        }
+
     }
 }

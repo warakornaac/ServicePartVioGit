@@ -1,16 +1,16 @@
 ﻿@{
-    ViewBag.Title = "Linkage Upload";
+    ViewBag.Title = "Fitting Upload";
 
 }
 <!-- PAGE-HEADER -->
 <div class="page-header">
-    <h1 class="page-title my-auto">Linkage Upload File Excel</h1>
+    <h1 class="page-title my-auto">Fitting Upload File Excel</h1>
     <div>
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item">
-                <a href="javascript:void(0)">Linkage Upload File Excel</a>
+                <a href="javascript:void(0)">Fitting Upload File Excel</a>
             </li>
-            <li class="breadcrumb-item active" aria-current="page">Linkage Upload</li>
+            <li class="breadcrumb-item active" aria-current="page">Fitting Upload</li>
         </ol>
     </div>
 </div>
@@ -24,7 +24,7 @@
                     <input class="form-control" style="padding:0.5rem 0.5rem 0.5rem 0.5rem;" type="file" id="fileInput">
                 </div>
                 <div class="col-md-2 text-end">
-                    <button class="btn btn-primary" onclick="importFileLinkage();">Upload</button>
+                    <button class="btn btn-primary" onclick="importFileFitting();">Upload</button>
                 </div>
             </div>
         </div>
@@ -38,19 +38,24 @@
                     <table class="table text-nowrap">
                         <thead>
                             <tr style="text-align:center;">
-                                <th colspan="3" scope="col"> ตัวอย่างไฟล์ Excel Linkage Upload</th>
+                                <th colspan="3" scope="col"> ตัวอย่างไฟล์ Excel Fitting Upload</th>
                             </tr>
                             <tr>
                                 <th scope="col">Stkcode</th>
-                                <th scope="col">KType</th>
-                                <th scope="col">TruType</th>
+                                <th scope="col">Axis</th>
+                                <th scope="col">Side</th>
+                                <th scope="col">Level</th>
+                                <th scope="col">Direction</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <th scope="row">JAR1013</th>
-                                <td>Jar00001</td>
-                                <td>BOSCH</td>
+                                <td>SW90015</td>
+                                <td>Engine</td>
+                                <td>Center</td>
+                                <td>Upper</td>
+                                <td>Inner</td>
                             </tr>
                         </tbody>
                     </table>
@@ -83,12 +88,12 @@
 <div id="ListImportExcel">
     @if (ViewBag.countRowImport > 0)
     {
-        @Html.Partial("_listLinkageUpload")
+        @Html.Partial("_listFittingUpload")
     }
 </div>
 
 <script>
-    function importFileLinkage() {
+    function importFileFitting() {
      var formData = new FormData();
      var fileInput = $("#fileInput").prop('files')[0];
      var Stkcode = '@Session["Stkcode"]';
@@ -123,7 +128,7 @@
                  formData.append('fileInput', fileInput);
                  formData.append('Stkcode', Stkcode)
                  $.ajax({
-                     url: '@Url.Action("UploadLinkage", "UploadFileExcel")',
+                     url: '@Url.Action("FittingUpload", "UploadFileExcel")',
                      type: 'post',
                      data: formData,
                      dataType: 'html',
@@ -172,7 +177,7 @@
                      Swal.fire({
                          icon: 'error',
                          title: 'ระบบทำงานผิดพลาด()',
-                         html: 'กรุณาแจ้งผู้ดูแลระบบ<br>โดยการแคปหน้าจอและก๊อปปี้ Error ด่านล่างนี้<br>LinkageUpload<br><br>',
+                         html: 'กรุณาแจ้งผู้ดูแลระบบ<br>โดยการแคปหน้าจอและก๊อปปี้ Error ด่านล่างนี้<br>FittingUpload<br><br>',
                          confirmButtonColor: '#d33',
                          confirmButtonText: 'ปิด',
                          allowOutsideClick: false,
@@ -184,4 +189,5 @@
      }
  }
 </script>
+
 
