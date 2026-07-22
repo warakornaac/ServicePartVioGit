@@ -1,4 +1,4 @@
-﻿using ServiceCatalog.Workers;
+﻿//using ServiceCatalog.Workers;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -8,6 +8,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using ServiceCatalog.Workers;
+
 
 namespace ServiceCatalog
 {
