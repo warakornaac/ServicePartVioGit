@@ -368,6 +368,7 @@ namespace ServiceCatalog.Controllers
         public JsonResult InsertVIOText(string moduleID, string marketID, string makerID, string rangeID, string val)
         {
             string message = string.Empty;
+            var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -382,7 +383,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inmakerID", makerID);
                         cmd.Parameters.AddWithValue("@inmodelrangeID", rangeID);
                         cmd.Parameters.AddWithValue("@inVal", val);
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -398,7 +399,7 @@ namespace ServiceCatalog.Controllers
         }
         public JsonResult UpdateVIOText(string moduleID, string marketID, string vehicleID, string makerID, string rangeID, string modelID, string val)
         {
-            string message = string.Empty;
+            string message = string.Empty; var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -415,7 +416,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inmodelrangeID", rangeID);
                         cmd.Parameters.AddWithValue("@inmodelID", modelID);
                         cmd.Parameters.AddWithValue("@inVal", val);
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -432,7 +433,7 @@ namespace ServiceCatalog.Controllers
         //VIO BODY
         public JsonResult InsertVIOBody(string marketID, string vehicleID, string makerID, string rangeID, string modelID, string bodyCode, string bodyType)
         {
-            string message = string.Empty;
+            string message = string.Empty; var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -449,7 +450,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inmodelID", modelID);
                         cmd.Parameters.AddWithValue("@inBodyCode", bodyCode);
                         cmd.Parameters.AddWithValue("@inBodyType", bodyType);
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -466,7 +467,7 @@ namespace ServiceCatalog.Controllers
 
         public JsonResult UpdateVIOBody(string marketID, string vehicleID, string makerID, string rangeID, string modelID, string bodyID, string bodyCode, string bodyType)
         {
-            string message = string.Empty;
+            string message = string.Empty; var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -484,7 +485,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inBodyID", bodyID);
                         cmd.Parameters.AddWithValue("@inBodyCode", bodyCode);
                         cmd.Parameters.AddWithValue("@inBodyType", bodyType);
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -501,7 +502,7 @@ namespace ServiceCatalog.Controllers
         //VIO Engine
         public JsonResult InsertVIOEngine(string makerID, string rangeID, string modelID, string bodyID, string valEngine, string valFuel, string valStrokes)
         {
-            string message = string.Empty;
+            string message = string.Empty; var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -518,7 +519,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inEngine", valEngine);
                         cmd.Parameters.AddWithValue("@inFuelType", valFuel);
                         cmd.Parameters.AddWithValue("@inStrokes", valStrokes);
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -535,7 +536,7 @@ namespace ServiceCatalog.Controllers
 
         public JsonResult UpdateVIOEngine(string makerID, string rangeID, string modelID, string bodyID, string engID, string valEngine, string valFuel, string valStrokes)
         {
-            string message = string.Empty;
+            string message = string.Empty; var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -553,7 +554,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inEngine", valEngine);
                         cmd.Parameters.AddWithValue("@inFuelType", valFuel);
                         cmd.Parameters.AddWithValue("@inStrokes", valStrokes);
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -574,7 +575,7 @@ namespace ServiceCatalog.Controllers
         //VIO TruData
         public JsonResult InsertVIOTrudata(string marketSegID, string vehicleSegID, string makerID, string rangeID, string modelID, string bodyID, string engineID, string valKtype, string valDrive, string valYearF, string valYearT, string valTHvio)
         {
-            string message = string.Empty;
+            string message = string.Empty; var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -596,7 +597,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@invalYearF", valYearF);
                         cmd.Parameters.AddWithValue("@invalYearT", valYearT);
                         cmd.Parameters.AddWithValue("@invalTHVIO", valTHvio);
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -614,7 +615,7 @@ namespace ServiceCatalog.Controllers
 
         public JsonResult UpdateVIOTrudata(string marketSegID, string vehicleSegID, string makerID, string rangeID, string modelID, string bodyID, string engineID, string valKtype, string valDrive, string valYearF, string valYearT, string valTHvio, string TruType)
         {
-            string message = string.Empty;
+            string message = string.Empty; var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -637,7 +638,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@invalYearT", valYearT);
                         cmd.Parameters.AddWithValue("@invalTHVIO", valTHvio);
                         cmd.Parameters.AddWithValue("@inTruType", TruType);
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }

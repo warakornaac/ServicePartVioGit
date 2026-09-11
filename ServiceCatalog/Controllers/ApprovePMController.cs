@@ -49,6 +49,7 @@ namespace ServiceCatalog.Controllers
                 using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString))
                 {
                     conn.Open();
+                    var insertedBy = Session["UserID"]?.ToString() ?? "";
                     using (SqlCommand cmd = new SqlCommand("P_Get_Approval_VIO", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
@@ -56,7 +57,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inSTKCOD", STKCOD);
                         cmd.Parameters.AddWithValue("@inKtype", "");
                         cmd.Parameters.AddWithValue("@inTrutype", "");
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         SqlDataReader reader = cmd.ExecuteReader();
                         while (reader.Read())
@@ -112,6 +113,7 @@ namespace ServiceCatalog.Controllers
         public List<ListLinkage> LoadDetailLink(string Ktype, string TruType, string PROD = "", string STKCOD = "")
         {
             var list = new List<ListLinkage>();
+            var insertedBy = Session["UserID"]?.ToString() ?? "";
             using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString))
             {
                 conn.Open();
@@ -122,7 +124,7 @@ namespace ServiceCatalog.Controllers
                     cmd.Parameters.AddWithValue("@inSTKCOD", STKCOD);
                     cmd.Parameters.AddWithValue("@inKtype", Ktype);
                     cmd.Parameters.AddWithValue("@inTrutype", TruType);
-                    cmd.Parameters.AddWithValue("@inUser", "thiraphon.pra");
+                    cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                     SqlDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
@@ -146,6 +148,7 @@ namespace ServiceCatalog.Controllers
         {
             string message = string.Empty;
             string respone = string.Empty;
+            var insertedBy = Session["UserID"]?.ToString() ?? "";
             try
             {
                 using (SqlConnection conn = new SqlConnection(ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString))
@@ -159,7 +162,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inTrutype", TruType);
                         cmd.Parameters.AddWithValue("@inOldTrutype", OldTruType);
                         cmd.Parameters.AddWithValue("@inFlag", Flag);
-                        cmd.Parameters.AddWithValue("@inUser", "Thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
