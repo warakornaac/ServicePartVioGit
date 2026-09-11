@@ -1,11 +1,12 @@
-﻿using System;
+﻿using ServiceCatalog.Models;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Mvc;
-using ServiceCatalog.Models;
 
 namespace ServiceCatalog.Controllers
 {
@@ -17,7 +18,9 @@ namespace ServiceCatalog.Controllers
 
             try
             {
-                using (var conn = new SqlConnection(ConfigurationManager.AppSettings["ServiceCatalogDB"]))
+                string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
+
+                using (var conn = new SqlConnection(conString))
                 using (var cmd = new SqlCommand("P_Get_ProductApi_List", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -39,19 +42,27 @@ namespace ServiceCatalog.Controllers
                                 VerifyStatus = reader["VerifyStatus"] as string,
                                 VerifyStatusRemark = reader["VerifyStatusRemark"] as string,
                                 InsertedBy = reader["InsertedBy"] as string,
-                                InsertedDate = reader["InsertedDate"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(reader["InsertedDate"])
+                                InsertedDate = reader["InsertedDate"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(reader["InsertedDate"]),
+                                UpdatedDate = reader["UpdatedDate"] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(reader["UpdatedDate"]) // เพิ่ม
                             });
                         }
                     }
                 }
 
                 ViewBag.ListProduct = result;
-                ViewBag.countRowImport = result.Count;
+                ViewBag.countTotal = result.Count;
+                ViewBag.countDone = result.Count(x => x.VerifyStatus == "Y");
+                ViewBag.countPending = result.Count(x => x.VerifyStatus != "Y");
+                ViewBag.countTodayDone = result.Count(x => x.VerifyStatus == "Y"
+                                              && x.UpdatedDate.Date == DateTime.Today);
             }
             catch (Exception ex)
             {
                 ViewBag.ListProduct = new List<PrepareProductApiModel>();
-                ViewBag.countRowImport = 0;
+                ViewBag.countTotal = 0;
+                ViewBag.countDone = 0;
+                ViewBag.countPending = 0;
+                ViewBag.countTodayDone = 0;
                 ViewBag.ErrorMessage = ex.Message;
             }
 
@@ -61,41 +72,39 @@ namespace ServiceCatalog.Controllers
         public JsonResult GetProductApiListVerifyCount()
         {
             string message = string.Empty;
-            List<string> list = new List<string>();
             int pendingCount = 0;
             int totalResult = 0;
+            int todayCount = 0;
+            int todayPending = 0;
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
-            string usr = Session["UserID"].ToString();
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(conString))
+                using (SqlCommand cmd = new SqlCommand("P_Get_ProductApi_List_Count", conn))
                 {
-                    using (SqlCommand cmd = new SqlCommand("P_Update_ProductApi", conn))
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@inUser", usr);
-                        cmd.Parameters.AddWithValue("@inSTKCOD", "");
-                        conn.Open();
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        if (reader.Read())
                         {
-                            if (reader.Read())
-                            {
-                                pendingCount = Convert.ToInt32(reader["PendingCount"]);
-                                totalResult = Convert.ToInt32(reader["TotalResult"]);
-                            }
+                            todayCount = Convert.ToInt32(reader["TodayCount"]);
+                            todayPending = Convert.ToInt32(reader["TodayPending"]);
+                            totalResult = Convert.ToInt32(reader["TotalResult"]);
+                            pendingCount = Convert.ToInt32(reader["PendingCount"]);
                         }
                     }
                 }
-                message  = "Y";
+                message = "Y";
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 message = ex.Message;
             }
 
-            return Json(new { message = message, pendingCount = pendingCount, totalResult= totalResult }, JsonRequestBehavior.AllowGet);
+            return Json(new { message, todayCount, todayPending, totalResult, pendingCount }, JsonRequestBehavior.AllowGet);
         }
-
         public JsonResult UpdateProductAPI()
         {
             string message = string.Empty;

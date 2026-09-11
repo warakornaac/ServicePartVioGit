@@ -124,7 +124,7 @@
                 <span class="side-menu__label">Approve Data Linkage</span>
             </a>
         </li>
-        @if (this.Session["Department"].ToString() == "MIS")
+        @*@if (this.Session["Department"].ToString() == "MIS")
         {
             <li class="slide">
                 <a href="@Url.Action("Index", "ManageUser")" class="side-menu__item">
@@ -132,7 +132,7 @@
                     <span class="side-menu__label">Manage User</span>
                 </a>
             </li>
-        }
+        }*@
         <li class="slide">
             <a href="#" class="side-menu__item" onclick="logoutSys();">
                 <i class="fa fa-sign-out side-menu__icon"></i>

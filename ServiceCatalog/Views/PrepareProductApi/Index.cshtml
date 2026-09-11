@@ -1,4 +1,7 @@
 @using ServiceCatalog.Models;
+@{
+    string currentDate = DateTime.Now.ToString("dd-MM-yy");
+}
 
 <div class="page-header">
     <h1 class="page-title my-auto">
@@ -13,6 +16,78 @@
         </ol>
     </div>
 </div>
+
+<div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xxl-3">
+        <div class="card overflow-hidden">
+            <div class="card-body" style="padding:10px">
+                <div class="d-flex justify-content-between">
+                    <div class="mt-2">
+                        <h6 class="fw-normal">Call Item วันนี้</h6>
+                        <div class="d-flex align-items-center">
+                            <h2 class="mb-0 text-dark fw-semibold me-2" id="todayCount"></h2>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper mt-1">
+                        <canvas id="profitchart" class="chart-dropshadow"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xxl-3">
+        <div class="card overflow-hidden">
+            <div class="card-body" style="padding:10px">
+                <div class="d-flex">
+                    <div class="mt-2">
+                        <h6 class="fw-normal">Call Item วันนี้คงเหลือ</h6>
+                        <h2 class="mb-0 text-dark fw-semibold ms-2" id="todayPending"></h2>
+                    </div>
+                    <div class="ms-auto">
+                        <div class="chart-wrapper mt-1">
+                            <canvas id="saleschart" class="chart-dropshadow"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xxl-3">
+        <div class="card overflow-hidden">
+            <div class="card-body" style="padding:10px">
+                <div class="d-flex">
+                    <div class="mt-2">
+                        <h6 class="fw-normal">Item ทั้งหมด</h6>
+                        <h2 class="mb-0 text-dark fw-semibold" id="totalResult">@ViewBag.countTotal</h2>
+                    </div>
+                    <div class="ms-auto">
+                        <div class="chart-wrapper mt-1">
+                            <canvas id="leadschart" class="chart-dropshadow"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12 col-xxl-3">
+        <div class="card overflow-hidden">
+            <div class="card-body" style="padding:10px">
+                <div class="d-flex">
+                    <div class="mt-2">
+                        <h6 class="fw-normal">คงเหลือทั้งหมด</h6>
+                        <h2 class="mb-0 text-dark fw-semibold" id="pendingCount"></h2>
+                    </div>
+                    <div class="ms-auto">
+                        <div class="chart-wrapper mt-1">
+                            <canvas id="costchart" class="chart-dropshadow"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="col-xl-12">
     <div class="card custom-card">
         <div class="card-header" style="padding: 10px 20px;">
@@ -20,7 +95,7 @@
                 <i class="fe fe-list"></i>
                 <div class="p-1">
                     <p class="mb-0 fw-semibold fs-14 text-info">
-                        @ViewBag.countRowImport Records
+                        @ViewBag.countTotal Records
                     </p>
                 </div>
                 <button class="btn btn-success  ms-auto" onclick="UpdateVerifyStatus();">Update</button>
@@ -89,71 +164,57 @@
             lengthMenu: [10, 25, 50, 100],
             order: [],
             language: {
-                search: "Search:",
+                search: "ค้นหา:",
                 lengthMenu: "Show _MENU_ List",
-                // info: "แสดง _START_ ถึง _END_ จาก _TOTAL_ รายการ",
                 infoEmpty: "Not Found",
-                // infoFiltered: "(กรองจากทั้งหมด _MAX_ รายการ)",
                 zeroRecords: "Not Found",
                 paginate: {
-                    first: "Fist",
+                    first: "First",
                     last: "Last",
                     next: "Next",
                     previous: "Before"
                 }
             }
         });
+
+        GetCountApiList();
     });
 
     function GetCountApiList() {
         $.ajax({
             url: '@Url.Action("GetProductApiListVerifyCount", "PrepareProductApi")',
-            data: { },
             type: 'get',
             dataType: 'json',
-            beforeSend: function () {
-                Swal.fire({
-                    title: 'Searching...',
-                    text: 'Please wait while we searching for the product.',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-            },
             success: function (result) {
                 if (result.message == 'Y') {
-                    //เปลี่ยนชื่อได้นะ
-                    $('#pending-txt').text(result.pendingCount);
-                    $('#total-txt').text(result.totalResult);
+                    $('#todayCount').text(result.todayCount);
+                    $('#todayPending').text(result.todayPending);
+                    $('#totalResult').text(result.totalResult);
+                    $('#pendingCount').text(result.pendingCount);
                 }
-                else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Cannot Get Count Api List',
-                        text: `Please capture this alert and contact the MIS department.\n${result.message}`,
-                        confirmButtonColor: '#d33',
-                        confirmButtonText: 'Close'
-                    });
-                }
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cannot Load Count',
+                    confirmButtonText: 'Close'
+                });
             }
-        })
+        });
     }
 
     function UpdateVerifyStatus() {
         $.ajax({
             url: '@Url.Action("UpdateProductAPI", "PrepareProductApi")',
-            data: { },
+            data: {},
             type: 'post',
             dataType: 'json',
             beforeSend: function () {
                 Swal.fire({
-                    title: 'Searching...',
+                    title: 'Updating...',
                     text: 'Please wait while we updating status for the product.',
                     allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
+                    didOpen: () => { Swal.showLoading(); }
                 });
             },
             success: function (result) {
@@ -162,13 +223,10 @@
                         title: "Update Verify Status success!",
                         confirmButtonText: "OK",
                         icon: "success"
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            location.reload();
-                        }
+                    }).then((res) => {
+                        if (res.isConfirmed) location.reload();
                     });
-                }
-                else {
+                } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Cannot Update Verify Status',
@@ -177,7 +235,10 @@
                         confirmButtonText: 'Close'
                     });
                 }
+            },
+            complete: function () {
+                if (!Swal.isVisible()) Swal.close();
             }
-        })
+        });
     }
 </script>
