@@ -163,20 +163,21 @@ namespace ServiceCatalog.Controllers
         {
             string message = string.Empty;
             string res = string.Empty;
+            var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
                 using (SqlConnection conn = new SqlConnection(conString))
                 {
                     conn.Open();
-                    using (SqlCommand cmd = new SqlCommand("P_Add_LinkageData_dev", conn))
+                    using (SqlCommand cmd = new SqlCommand("P_Add_LinkageData", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.Parameters.AddWithValue("@inSTKCOD", STKCOD);
                         cmd.Parameters.AddWithValue("@inKtype", KTYPE);
                         cmd.Parameters.AddWithValue("@inTruType", TRUTYPE);
                         cmd.Parameters.AddWithValue("@inMarketSeg", MARKETSEG);
-                        cmd.Parameters.AddWithValue("@inUser", "thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -193,6 +194,7 @@ namespace ServiceCatalog.Controllers
         {
             string message = string.Empty;
             string res = string.Empty;
+            var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -210,7 +212,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inModel", MODEL);
                         cmd.Parameters.AddWithValue("@inBody", BODY);
                         cmd.Parameters.AddWithValue("@inEngine", ENGINE);
-                        cmd.Parameters.AddWithValue("@inUser", "thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
@@ -227,6 +229,7 @@ namespace ServiceCatalog.Controllers
         {
             string message = string.Empty;
             string res = string.Empty;
+            var insertedBy = Session["UserID"]?.ToString() ?? "";
             string conString = ConfigurationManager.ConnectionStrings["ServiceCatalogDB"].ConnectionString;
             try
             {
@@ -240,7 +243,7 @@ namespace ServiceCatalog.Controllers
                         cmd.Parameters.AddWithValue("@inKtype", KTYPE);
                         cmd.Parameters.AddWithValue("@inTruType", TRUTYPE);
                         cmd.Parameters.AddWithValue("@inSeq", SEQLINK);
-                        cmd.Parameters.AddWithValue("@inUser", "thiraphon.pra");
+                        cmd.Parameters.AddWithValue("@inUser", insertedBy);
 
                         cmd.ExecuteNonQuery();
                     }
